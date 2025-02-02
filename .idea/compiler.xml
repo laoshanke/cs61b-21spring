@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="lab2setup" />
+        <module name="lab3" />
+        <module name="lab4" />
+        <module name="lab2" />
+        <module name="lab7" />
+        <module name="lab8" />
+        <module name="proj3" />
+        <module name="proj2" />
+        <module name="lab6" />
+        <module name="proj1" />
+        <module name="proj1ec" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="lab2" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />
+      <module name="lab2setup" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />
+      <module name="lab3" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />
+      <module name="lab4" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />
+      <module name="lab6" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />
+      <module name="lab7" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />
+      <module name="lab8" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />
+      <module name="proj1" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />
+      <module name="proj1ec" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />
+      <module name="proj2" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />
+      <module name="proj3" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />
+    </option>
+  </component>
+</project>

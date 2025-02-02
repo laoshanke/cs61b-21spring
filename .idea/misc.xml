@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/lab2/pom.xml" />
+        <option value="$PROJECT_DIR$/lab3/pom.xml" />
+        <option value="$PROJECT_DIR$/lab4/pom.xml" />
+        <option value="$PROJECT_DIR$/lab6/pom.xml" />
+        <option value="$PROJECT_DIR$/lab7/pom.xml" />
+        <option value="$PROJECT_DIR$/lab8/pom.xml" />
+        <option value="$PROJECT_DIR$/proj1/pom.xml" />
+        <option value="$PROJECT_DIR$/proj2/pom.xml" />
+        <option value="$PROJECT_DIR$/proj3/pom.xml" />
+        <option value="$PROJECT_DIR$/proj1ec/pom.xml" />
+        <option value="$PROJECT_DIR$/lab2setup/pom.xml" />
+        <option value="$PROJECT_DIR$/library-sp21/javalib/masterpom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_23" default="true" project-jdk-name="openjdk-23" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>
