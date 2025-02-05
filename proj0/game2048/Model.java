@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author TODO: lao
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -108,22 +108,78 @@ public class Model extends Observable {
      * */
     public boolean tilt(Side side) {
         boolean changed;
-        changed = false;
+        // 保存原始视角
 
-        // TODO: Modify this.board (and perhaps this.score) to account
-        // for the tilt to the Side SIDE. If the board changed, set the
-        // changed local variable to true.
-
-        checkGameOver();
+        // 统一转换为NORTH视角处理
+        board.setViewingPerspective(Side.NORTH);
+        changed = processTilt();
+        // 恢复原始视角
+        board.setViewingPerspective(side);
         if (changed) {
             setChanged();
         }
         return changed;
     }
 
+    private boolean processTilt() {
+        boolean changed = false;
+        int size = board.size();
+        // 合并标记数组，防止重复合并
+        boolean[][] merged = new boolean[size][size];
+
+        // 按列遍历，从下往上处理（NORTH视角的最下方行对应原板的行3）
+        for (int col = 0; col < size; col++) {
+            for (int row = size - 1; row >= 0; row--) {
+                Tile t = board.tile(col, row);
+                if (t == null) continue;
+
+                int targetRow = row;
+                // 寻找可移动到的最大行
+                while (targetRow + 1 < size && board.tile(col, targetRow + 1) == null) {
+                    targetRow++;
+                }
+
+                // 检查合并条件：相邻且未被合并
+                if (targetRow + 1 < size &&
+                        board.tile(col, targetRow + 1).value() == t.value() &&
+                        !merged[col][targetRow + 1]) {
+                    // 合并并更新分数
+                    board.move(col, targetRow + 1, t);
+                    score += t.value() * 2;
+                    merged[col][targetRow + 1] = true; // 标记已合并
+                    changed = true;
+                } else if (targetRow != row) {
+                    // 仅移动
+                    board.move(col, targetRow, t);
+                    changed = true;
+                }
+            }
+        }
+        return changed;
+    }
+
+
+
     /** Checks if the game is over and sets the gameOver variable
      *  appropriately.
      */
+    public boolean test_move( int i, int j,Tile t){
+        if ( tile(i,j) == null || tile(i,j).next()!= null){
+            if (i  == 3){
+                return true;
+            }
+            if( tile(i+1,j) != null ){
+                if(tile(i+1,j).value() != t.value()){
+                    return true;
+                }
+                if(tile(i+1,j).next() != null){
+                    return test_move(i+1,j,t);
+                }
+            }
+        }
+        return false;
+    }
+
     private void checkGameOver() {
         gameOver = checkGameOver(board);
     }
@@ -138,6 +194,16 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        for (int i = 0;i < b.size();i++)
+        {
+            for (int j = 0; j < b.size(); j++)
+            {
+                if ( b.tile(i,j) == null)
+                {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,17 +214,57 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        for (int i = 0;i < b.size();i++)
+        {
+            for (int j = 0; j < b.size(); j++)
+            {
+                if ( b.tile(i,j) != null && b.tile(i,j).value() ==  MAX_PIECE)
+                {
+                    return true;
+                }
+            }
+        }
         return false;
     }
-
+    public  static  boolean test_merge_able(Board b, Tile t) {
+        int row = t.row();
+        int col = t.col();
+        int size = b.size();
+        // 定义四个方向的偏移量：下、右、上、左
+        int[][] directions = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+        for (int[] dir : directions) {
+            int newRow = row + dir[0];
+            int newCol = col + dir[1];
+            // 检查新位置是否在棋盘范围内
+            if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
+                Tile neighbor = b.tile(newCol, newRow);
+                if (neighbor != null && neighbor.value() == t.value()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     /**
      * Returns true if there are any valid moves on the board.
      * There are two ways that there can be valid moves:
      * 1. There is at least one empty space on the board.
      * 2. There are two adjacent tiles with the same value.
+     *
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        for (int i = 0;i < b.size();i++)
+        {
+            for (int j = 0; j < b.size(); j++)
+            {
+                if ( b.tile(i,j) == null || test_merge_able( b, b.tile(i,j)) )
+                {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
