@@ -9,14 +9,13 @@ public class IntListExercises {
      * @param lst IntList from Lecture
      */
     public static void addConstant(IntList lst, int c) {
-        if(lst != null){
-            IntList head = lst;
-            while (head.rest != null) {
-                head.first += c;
-                head = head.rest;
-            }
+        IntList head = lst;
+        while (head != null) {  // 遍历所有节点
+            head.first += c;
+            head = head.rest;
         }
     }
+
 
     /**
      * Part B: Buggy method that sets node.first to zero if
