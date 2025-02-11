@@ -1,0 +1,5 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Mon Feb 10 13:48:25 GMT+08:00 2025
+@default-maven-default-http-blocker-http\://0.0.0.0/.lastUpdated=1739166505056
+http\://0.0.0.0/.error=Could not transfer artifact junit\:junit\:pom\:4.10 from/to maven-default-http-blocker (http\://0.0.0.0/)\: Blocked mirror for repositories\: [jboss-public-repository-group (http\://repository.jboss.org/nexus/content/groups/public, default, releases), codehaus-snapshots (http\://nexus.codehaus.org/snapshots/, default, snapshots), apache.snapshots (http\://people.apache.org/repo/m2-snapshot-repository, default, snapshots), snapshots (http\://snapshots.maven.codehaus.org/maven2, default, snapshots)]
+https\://repo.maven.apache.org/maven2/.lastUpdated=1739166505269

@@ -108,11 +108,11 @@ public class Model extends Observable {
      * */
     public boolean tilt(Side side) {
         boolean changed;
-        // 保存原始视角（通过Board的私有字段间接实现）
-        Side originalPerspective = Side.NORTH;  // 假设Board类中有public访问权限
+        // 保存原始视角
+        Side originalPerspective = Side.NORTH;
         // 设置当前处理方向为视角
         board.setViewingPerspective(side);
-        changed = processTilt();
+        changed = processTilt(side);
         // 恢复原始视角
         board.setViewingPerspective(originalPerspective);
         if (changed) {
@@ -121,31 +121,31 @@ public class Model extends Observable {
         return changed;
     }
 
-    private boolean processTilt() {
+    private boolean processTilt(Side side) {
         boolean changed = false;
         int size = board.size();
         boolean[][] merged = new boolean[size][size];
 
-        // 关键：按当前视角的列遍历，从"最远行"开始处理（模拟向北移动）
+        // 根据方向确定遍历顺序
         for (int col = 0; col < size; col++) {
+            // EAST方向需要从右向左处理列（视为NORTH的行）
             for (int row = size - 1; row >= 0; row--) {
                 Tile t = board.tile(col, row);
                 if (t == null) continue;
 
                 int targetRow = row;
-                // 寻找可移动的最远空位
+                // 寻找可移动的最远位置
                 while (targetRow + 1 < size && board.tile(col, targetRow + 1) == null) {
                     targetRow++;
                 }
 
                 // 检查合并条件
-                if (targetRow + 1 < size
-                        && board.tile(col, targetRow + 1).value() == t.value()
-                        && !merged[col][targetRow + 1])
-                {
+                if (targetRow + 1 < size &&
+                        board.tile(col, targetRow + 1).value() == t.value() &&
+                        !merged[col][targetRow + 1]) {
                     board.move(col, targetRow + 1, t);
                     score += t.value() * 2;
-                    merged[col][targetRow + 1] = true; // 标记合并位置
+                    merged[col][targetRow + 1] = true;
                     changed = true;
                 } else if (targetRow != row) {
                     board.move(col, targetRow, t);
@@ -155,9 +155,6 @@ public class Model extends Observable {
         }
         return changed;
     }
-
-
-
     /** Checks if the game is over and sets the gameOver variable
      *  appropriately.
      */

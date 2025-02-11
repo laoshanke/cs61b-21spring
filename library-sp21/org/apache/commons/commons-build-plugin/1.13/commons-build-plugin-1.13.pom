@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-parent</artifactId>
+    <version>58</version>
+  </parent>
+  <artifactId>commons-build-plugin</artifactId>
+  <packaging>maven-plugin</packaging>
+  <version>1.13</version>
+  <name>Apache Commons Build Plugin Maven Mojo</name>
+  <description>
+    Apache Maven Mojo for Apache Commons Build tasks.
+
+    For example:
+      mvn commons-build:download-page [-Dcommons.release.version=1.2.3]
+
+    To use a SNAPSHOT version (for testing etc)
+      mvn org.apache.commons:commons-build-plugin:1.12-SNAPSHOT:download-page [-Dcommons.release.version=1.2.3]
+  </description>
+  <url>https://commons.apache.org/proper/commons-build-plugin/</url>
+  <issueManagement>
+    <system>jira</system>
+    <url>https://issues.apache.org/jira/browse/COMMONSSITE</url>
+  </issueManagement>
+  <inceptionYear>2008</inceptionYear>
+  <scm>
+    <connection>scm:git:http://gitbox.apache.org/repos/asf/commons-build-plugin.git</connection>
+    <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/commons-build-plugin.git</developerConnection>
+    <url>https://gitbox.apache.org/repos/asf?p=commons-build-plugin.git</url>
+  </scm>
+  <ciManagement>
+    <system>GitHub</system>
+    <url>https://github.com/apache/commons-build-plugin/actions</url>
+  </ciManagement>
+  <distributionManagement>
+    <site>
+      <id>commons.site</id>
+      <name>Apache Commons Site SVN</name>
+      <url>scm:svn:${commons.scmPubUrl}</url>
+    </site>
+  </distributionManagement>
+  <developers>
+    <developer>
+      <name>Niall Pemberton</name>
+      <id>niallp</id>
+      <email>niallp AT apache.org</email>
+    </developer>
+    <developer>
+      <name>Dennis Lundberg</name>
+      <id>dennisl</id>
+    </developer>
+    <developer>
+      <id>ggregory</id>
+      <name>Gary Gregory</name>
+      <email>ggregory at apache.org</email>
+      <url>https://www.garygregory.com</url>
+      <organization>The Apache Software Foundation</organization>
+      <organizationUrl>https://www.apache.org/</organizationUrl>      
+      <roles>
+        <role>PMC Member</role>
+      </roles>
+      <timezone>America/New_York</timezone>
+      <properties>
+        <picUrl>https://people.apache.org/~ggregory/img/garydgregory80.png</picUrl>
+      </properties>
+    </developer>
+  </developers>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.graalvm.js</groupId>
+      <artifactId>js</artifactId>
+      <version>${graalvm.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.graalvm.js</groupId>
+      <artifactId>js-scriptengine</artifactId>
+      <version>${graalvm.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugin-tools</groupId>
+      <artifactId>maven-script-ant</artifactId>
+      <version>3.9.0</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+	<!-- include the site goal to detect problems previously encountered with maven-plugin-plugin 3.9.0 -->
+    <defaultGoal>clean verify apache-rat:check spotbugs:check pmd:check pmd:cpd-check javadoc:javadoc site</defaultGoal>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <targetPath>resources</targetPath>
+      </resource>
+      <resource>
+        <directory>${basedir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>NOTICE.txt</include>
+          <include>LICENSE.txt</include>
+        </includes>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <!-- 3.9.0 blows up with: 
+        [ERROR] Could not find goal 'report' in plugin org.apache.maven.plugins:maven-plugin-plugin:3.9.0 among available goals addPluginArtifactMetadata, descriptor, help, helpmojo -> [Help 1]
+        -->
+        <version>3.8.2</version>
+        <!-- Add the Ant plugin tools to the plugin -->
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-tools-ant</artifactId>
+            <version>3.9.0</version>
+          </dependency>
+        </dependencies>
+
+        <configuration>
+          <goalPrefix>commons-build</goalPrefix>
+        </configuration>
+
+        <executions>
+          <execution>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>target/plugin-generated-xdocs</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>src/assembly/src.xml</descriptor>
+          </descriptors>
+          <tarLongFileMode>gnu</tarLongFileMode>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <configuration>
+          <useDefaultExcludes>true</useDefaultExcludes>
+          <excludes>
+            <!-- template files which will be inserted into the middle of resulting page -->
+            <exclude>src/main/resources/commons-xdoc-templates/download-page-body.xml</exclude>
+            <exclude>src/main/resources/commons-xdoc-templates/download-page-foot.xml</exclude>
+            <exclude>src/main/resources/commons-xdoc-templates/notice-txt-template.txt</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <configuration>
+        <!-- <excludeFilterFile>${basedir}/spotbugs-exclude-filter.xml</excludeFilterFile> -->
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <configuration>
+          <useDefaultExcludes>true</useDefaultExcludes>
+          <excludes>
+            <!-- template files which will be inserted into the middle of resulting page -->
+            <exclude>src/main/resources/commons-xdoc-templates/download-page-body.xml</exclude>
+            <exclude>src/main/resources/commons-xdoc-templates/download-page-foot.xml</exclude>
+            <exclude>src/main/resources/commons-xdoc-templates/notice-txt-template.txt</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <configuration>
+        <!-- <excludeFilterFile>${basedir}/spotbugs-exclude-filter.xml</excludeFilterFile> -->
+        </configuration>
+      </plugin>
+
+      <!-- exclude surefire report -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <reportSets>
+          <reportSet/>
+        </reportSets>
+      </plugin>
+
+      <!-- exclude jdepend report -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jdepend-maven-plugin</artifactId>
+        <version>2.0</version>
+        <reportSets>
+          <reportSet/>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+  <properties>
+    <enforcer.skip>true</enforcer.skip>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <commons.manifestfile/>
+    <commons.componentid>build-plugin</commons.componentid>
+    <commons.jira.id>COMMONSSITE</commons.jira.id>
+    <commons.jira.pid>12310466&amp;amp;component=12312401</commons.jira.pid>
+    <commons.site.path>commons-${commons.componentid}</commons.site.path>
+    <commons.scmPubUrl>https://svn.apache.org/repos/infra/websites/production/commons/content/proper/${commons.site.path}</commons.scmPubUrl>
+    <commons.scmPubCheckoutDirectory>site-content</commons.scmPubCheckoutDirectory>
+
+    <!-- Commons Release Plugin -->
+    <commons.release.version>1.13</commons.release.version>
+    <commons.bc.version>1.12</commons.bc.version>
+    <commons.rc.version>RC1</commons.rc.version>
+    <commons.release.isDistModule>true</commons.release.isDistModule>
+    <commons.distSvnStagingUrl>scm:svn:https://dist.apache.org/repos/dist/dev/commons/${commons.componentid}</commons.distSvnStagingUrl>
+    <commons.releaseManagerName>Gary Gregory</commons.releaseManagerName>    
+    <commons.releaseManagerKey>86fdc7e2a11262cb</commons.releaseManagerKey>
+    
+    <!-- JS -->
+    <!-- 22.1.0 requires Java 11 -->
+    <graalvm.version>22.0.0.2</graalvm.version>
+  </properties>
+  <profiles>
+    <profile>
+      <id>setup-checkout</id>
+      <activation>
+        <file>
+          <missing>site-content</missing>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>prepare-checkout</id>
+                <phase>pre-site</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <exec executable="svn">
+                      <arg line="checkout --depth immediates ${commons.scmPubUrl} ${commons.scmPubCheckoutDirectory}"/>
+                    </exec>
+
+                    <exec executable="svn">
+                      <arg line="update --set-depth exclude ${commons.scmPubCheckoutDirectory}/javadocs"/>
+                    </exec>
+
+                    <pathconvert pathsep=" " property="dirs">
+                      <dirset dir="${commons.scmPubCheckoutDirectory}" includes="*"/>
+                    </pathconvert>
+                    <exec executable="svn">
+                      <arg line="update --set-depth infinity ${dirs}"/>
+                    </exec>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

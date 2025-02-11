@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>maven-plugins</groupId>
+  <artifactId>maven-cobertura-plugin</artifactId>
+  <name>Maven Cobertura Plug-in</name>
+  <version>1.1.1</version>
+  <description>Cobertura is a free Java tool that calculates the percentage of code accessed by tests. It can be used to identify which parts of your Java program are lacking test coverage. It is based on jcoverage.</description>
+  <url>http://maven-plugins.sourceforge.net/maven-cobertura-plugin</url>
+  <issueManagement>
+    <url>http://sourceforge.net/tracker/?group_id=61626</url>
+  </issueManagement>
+  <inceptionYear>2005</inceptionYear>
+  <mailingLists>
+    <mailingList>
+      <name>Maven-Plugins User List</name>
+      <subscribe>maven-plugins-user-subscribe@lists.sourceforge.net</subscribe>
+      <unsubscribe>maven-plugins-user-unsubscribe@lists.sourceforge.net</unsubscribe>
+      <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=11777</archive>
+    </mailingList>
+    <mailingList>
+      <name>Maven-Plugins Developer List</name>
+      <subscribe>maven-plugins-developer-subscribe@lists.sourceforge.net</subscribe>
+      <unsubscribe>maven-plugins-developer-unsubscribe@lists.sourceforge.net</unsubscribe>
+      <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=11782</archive>
+    </mailingList>
+    <mailingList>
+      <name>Maven-Plugins CVS Commits List</name>
+      <subscribe>maven-plugins-cvs-subscribe@lists.sourceforge.net</subscribe>
+      <unsubscribe>maven-plugins-cvs-unsubscribe@lists.sourceforge.net</unsubscribe>
+      <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=11781</archive>
+    </mailingList>
+  </mailingLists>
+  <developers>
+    <developer>
+      <id>carlossg</id>
+      <name>Carlos Sanchez</name>
+      <email>carlos@apache.org</email>
+    </developer>
+    <developer>
+      <id>jbisotti</id>
+      <name>Jamie Bisotti</name>
+      <email>jbisotti@gmail.com</email>
+      <timezone>-4</timezone>
+    </developer>
+    <developer>
+      <id>dep4b</id>
+      <name>Eric Pugh</name>
+      <email>epugh@opensourceconnections.com</email>
+      <organization>OpenSource Connections</organization>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/maven-plugins:maven-plugins/cobertura</connection>
+    <developerConnection>scm:cvs:ext:USERNAME_NOT_SET@cvs.sourceforge.net:/cvsroot/maven-plugins:maven-plugins/cobertura</developerConnection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/maven-plugins/maven-plugins/cobertura/</url>
+  </scm>
+  <organization>
+    <name>SourceForge</name>
+    <url>http://www.sourceforge.net/projects/maven-plugins/</url>
+  </organization>
+  <build>
+    <sourceDirectory>C:\dev\maven\maven-sourceforge-plugins\maven-plugins\cobertura\target\checkout\currentplugin/src/main</sourceDirectory>
+    <testSourceDirectory>C:\dev\maven\maven-sourceforge-plugins\maven-plugins\cobertura\target\checkout\currentplugin/src/test</testSourceDirectory>
+    <resources>
+      <resource>
+        <targetPath>plugin-resources</targetPath>
+        <directory>C:\dev\maven\maven-sourceforge-plugins\maven-plugins\cobertura\target\checkout\currentplugin/src/plugin-resources</directory>
+      </resource>
+      <resource>
+        <directory>C:\dev\maven\maven-sourceforge-plugins\maven-plugins\cobertura\target\checkout\currentplugin</directory>
+        <includes>
+          <include>plugin.jelly</include>
+          <include>plugin.properties</include>
+          <include>project.properties</include>
+          <include>project.xml</include>
+        </includes>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>cobertura</groupId>
+      <artifactId>cobertura</artifactId>
+      <version>1.6</version>
+    </dependency>
+    <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+      <version>2.0.8</version>
+    </dependency>
+    <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.8</version>
+    </dependency>
+    <dependency>
+      <groupId>urbanophile</groupId>
+      <artifactId>java-getopt</artifactId>
+      <version>1.0.9</version>
+    </dependency>
+    <dependency>
+      <groupId>javancss</groupId>
+      <artifactId>ccl</artifactId>
+      <version>21.41</version>
+    </dependency>
+    <dependency>
+      <groupId>javancss</groupId>
+      <artifactId>javancss</artifactId>
+      <version>21.41</version>
+    </dependency>
+  </dependencies>
+  <distributionManagement>
+    <repository>
+      <id>default</id>
+      <name>Default Repository</name>
+      <url>shell1.maven-plugins.sf.net//home/groups/m/ma/maven-plugins/htdocs/repository/</url>
+    </repository>
+    <site>
+      <id>default</id>
+      <name>Default Site</name>
+      <url>scp://maven-plugins.sourceforge.net//home/groups/m/ma/maven-plugins/htdocs/maven-cobertura-plugin</url>
+    </site>
+    <status>converted</status>
+  </distributionManagement>
+</project>

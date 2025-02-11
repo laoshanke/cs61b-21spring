@@ -6,22 +6,60 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="xz" />
+        <module name="commons-chain" />
+        <module name="commons-beanutils (1)" />
+        <module name="commons-io (1)" />
+        <module name="junit (1)" />
+        <module name="commons-io" />
+        <module name="dom4j" />
+        <module name="commons-lang" />
+        <module name="commons-collections (1)" />
+        <module name="slf4j-api" />
+        <module name="commons-collections (5)" />
+        <module name="commons-codec" />
+        <module name="commons-collections (3)" />
+        <module name="commons-logging (2)" />
+        <module name="commons-logging" />
+        <module name="javax.annotation-api" />
+        <module name="proj1ec" />
+        <module name="aopalliance" />
+        <module name="hamcrest-core" />
+        <module name="junit" />
+        <module name="slf4j-api (1)" />
+        <module name="commons-codec (1)" />
+        <module name="commons-digester (1)" />
+        <module name="proj3" />
+        <module name="commons-collections" />
+        <module name="proj2" />
+        <module name="jsoup" />
+        <module name="commons-beanutils" />
+        <module name="proj1" />
+        <module name="oro" />
+        <module name="commons-collections (4)" />
+        <module name="javax.servlet-api" />
         <module name="lab2setup" />
+        <module name="commons-collections (2)" />
         <module name="lab3" />
+        <module name="commons-logging (3)" />
         <module name="lab4" />
+        <module name="slf4j-jdk14" />
+        <module name="commons-logging (1)" />
         <module name="lab2" />
+        <module name="commons-digester" />
         <module name="lab7" />
         <module name="lab8" />
-        <module name="proj3" />
-        <module name="proj2" />
         <module name="lab6" />
-        <module name="proj1" />
-        <module name="proj1ec" />
+        <module name="cdi-api" />
+        <module name="javax.inject" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="javax.annotation-api" options="-Xlint:unchecked" />
+      <module name="javax.servlet-api" options="-Xlint:unchecked" />
+      <module name="junit (1)" options="-Xdoclint:none" />
       <module name="lab2" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />
       <module name="lab2setup" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />
       <module name="lab3" options="-J-XX:+ShowCodeDetailsInExceptionMessages" />

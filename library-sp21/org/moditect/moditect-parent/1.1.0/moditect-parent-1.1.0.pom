@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+     Copyright 2017 - 2023 The ModiTect authors
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-org-parent</artifactId>
+        <version>1.3.1.Final</version>
+        <relativePath/>
+    </parent>
+
+    <artifactId>moditect-parent</artifactId>
+    <version>1.1.0</version>
+    <packaging>pom</packaging>
+
+    <name>ModiTect Parent</name>
+    <url>https://github.com/moditect/moditect</url>
+    <description>Module system tooling</description>
+    <inceptionYear>2017</inceptionYear>
+
+    <properties>
+        <project.identifier>moditect</project.identifier>
+        <project.repository>moditect/moditect</project.repository>
+        <local.repository.path>/tmp/repository</local.repository.path>
+        <java.version>1.8</java.version>
+        <maven.version>3.8.7</maven.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <version.surefire.plugin>3.0.0-M4</version.surefire.plugin>
+        <!-- value comes from property git.commit.author.time -->
+        <project.build.outputTimestamp>2023-11-05T15:58:06Z</project.build.outputTimestamp>
+    </properties>
+
+    <scm>
+        <connection>scm:git:${repository.url}</connection>
+        <developerConnection>scm:git:${repository.url}</developerConnection>
+        <url>${repository.url}</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>moditect</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.javaparser</groupId>
+                <artifactId>javaparser-core</artifactId>
+                <version>3.25.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.testing.compile</groupId>
+                <artifactId>compile-testing</artifactId>
+                <version>0.21.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun</groupId>
+                        <artifactId>tools</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                <version>3.31.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>31.1-jre</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>2.18.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>9.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>3.24.2</version>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.13.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.36</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-plugin-plugin</artifactId>
+                    <version>3.8.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.4.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>3.3.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>moditect-maven-plugin</artifactId>
+                    <version>${project.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration combine.self="override">
+                    <header>${rootdir}/etc/license.txt</header>
+                    <strictCheck>true</strictCheck>
+                    <excludes>
+                        <exclude>README.md</exclude>
+                        <exclude>LICENSE.txt</exclude>
+                        <exclude>mvnw</exclude>
+                        <exclude>mvnw.cmd</exclude>
+                        <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
+                        <exclude>.mvn/wrapper/MavenWrapperDownloader.java</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>stage</id>
+            <properties>
+                <altDeploymentRepository>local::file:${rootdir}/target/staging-deploy</altDeploymentRepository>
+            </properties>
+            <build>
+                <defaultGoal>deploy</defaultGoal>
+            </build>
+        </profile>
+        <profile>
+            <id>jreleaser</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jreleaser</groupId>
+                        <artifactId>jreleaser-maven-plugin</artifactId>
+                        <version>1.8.0</version>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <gitRootSearch>true</gitRootSearch>
+                            <jreleaser>
+                                <project>
+                                    <name>ModiTect</name>
+                                    <links>
+                                        <homepage>https://github.com/moditect/moditect</homepage>
+                                        <documentation>https://github.com/moditect/moditect</documentation>
+                                    </links>
+                                </project>
+                                <signing>
+                                    <active>ALWAYS</active>
+                                    <armored>true</armored>
+                                </signing>
+                                <deploy>
+                                    <maven>
+                                        <nexus2>
+                                            <maven-central>
+                                                <active>ALWAYS</active>
+                                                <url>https://oss.sonatype.org/service/local</url>
+                                                <snapshotUrl>https://oss.sonatype.org/content/repositories/snapshots/</snapshotUrl>
+                                                <closeRepository>true</closeRepository>
+                                                <releaseRepository>true</releaseRepository>
+                                                <stagingRepositories>target/staging-deploy</stagingRepositories>
+                                            </maven-central>
+                                        </nexus2>
+                                    </maven>
+                                </deploy>
+                                <release>
+                                    <github>
+                                        <tagName>{{projectVersion}}</tagName>
+                                        <releaseName>{{projectVersion}}</releaseName>
+                                        <overwrite>true</overwrite>
+                                        <issues>
+                                            <enabled>true</enabled>
+                                        </issues>
+                                        <changelog>
+                                            <formatted>ALWAYS</formatted>
+                                            <format>- {{commitShortHash}} {{commitTitle}}</format>
+                                            <contributors>
+                                                <format>- {{contributorName}}</format>
+                                            </contributors>
+                                            <labelers>
+                                                <labeler>
+                                                    <label>dependencies</label>
+                                                    <title>Bump</title>
+                                                </labeler>
+                                                <labeler>
+                                                    <label>issue</label>
+                                                    <title>regex:.*#[0-9].*</title>
+                                                </labeler>
+                                                <labeler>
+                                                    <label>merge_pull</label>
+                                                    <title>Merge pull</title>
+                                                </labeler>
+                                                <labeler>
+                                                    <label>merge_branch</label>
+                                                    <title>Merge branch</title>
+                                                </labeler>
+                                                <labeler>
+                                                    <label>task_prep</label>
+                                                    <title>Preparing</title>
+                                                </labeler>
+                                                <labeler>
+                                                    <label>task_rel</label>
+                                                    <title>Releasing</title>
+                                                </labeler>
+                                            </labelers>
+                                            <categories>
+                                                <category>
+                                                    <title>Merge</title>
+                                                    <labels>merge_pull,merge_branch</labels>
+                                                </category>
+                                                <category>
+                                                    <title>✅ Issues</title>
+                                                    <labels>issue</labels>
+                                                </category>
+                                                <category>
+                                                    <title>🧰 Tasks</title>
+                                                    <labels>task_prep,task_rel</labels>
+                                                </category>
+                                                <category>
+                                                    <title>⚙️  Dependencies</title>
+                                                    <labels>dependencies</labels>
+                                                </category>
+                                            </categories>
+                                            <hide>
+                                                <categories>Merge</categories>
+                                                <contributors>GitHub,dependabot</contributors>
+                                            </hide>
+                                        </changelog>
+                                    </github>
+                                </release>
+                            </jreleaser>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

@@ -1,0 +1,5 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Mon Feb 10 13:48:25 GMT+08:00 2025
+@default-maven-default-http-blocker-http\://0.0.0.0/.lastUpdated=1739166505479
+http\://0.0.0.0/.error=Could not transfer artifact org.apache.maven.surefire\:maven-surefire-common\:pom\:2.12.4 from/to maven-default-http-blocker (http\://0.0.0.0/)\: Blocked mirror for repositories\: [jboss-public-repository-group (http\://repository.jboss.org/nexus/content/groups/public, default, releases), apache.snapshots (http\://repository.apache.org/snapshots, default, snapshots)]
+https\://repo.maven.apache.org/maven2/.lastUpdated=1739166505681

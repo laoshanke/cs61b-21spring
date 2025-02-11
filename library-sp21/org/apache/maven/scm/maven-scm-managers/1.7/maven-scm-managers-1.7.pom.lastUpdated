@@ -1,0 +1,4 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Mon Feb 10 13:51:13 GMT+08:00 2025
+@default-central-https\://repo.maven.apache.org/maven2/.lastUpdated=1739166673856
+https\://repo.maven.apache.org/maven2/.error=Could not transfer artifact org.apache.maven.scm\:maven-scm-managers\:pom\:1.7 from/to central (https\://repo.maven.apache.org/maven2)\: Connection reset
