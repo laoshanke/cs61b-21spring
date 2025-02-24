@@ -78,4 +78,24 @@ public class SLList<Item> {
 		L.addLast(20);
 		System.out.println(L.size());
 	}
+	public Item get(int i) {
+		if (i < 0) {
+			throw new IndexOutOfBoundsException("Index cannot be negative: " + i);
+		}
+
+		IntNode current = sentinel.next; // 从头节点开始遍历
+		for (int j = 0; j < i; j++) {
+			if (current == null) {    // 链表长度不足时抛出异常
+				throw new IndexOutOfBoundsException("Index exceeds list size: " + i);
+			}
+			current = current.next;   // 移动至下一个节点
+		}
+
+		if (current == null) {        // 处理i正好等于链表长度的情况
+			throw new IndexOutOfBoundsException("Index exceeds list size: " + i);
+		}
+		return current.item;          // 返回目标节点的数据
+	}
+
+
 }
