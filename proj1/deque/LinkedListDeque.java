@@ -2,7 +2,7 @@ package deque;
 import java.util.Iterator;
 
 
-public class LinkedListDeque<T> implements Iterable<T> {
+public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
     private node sentinel; //
     private int size;
     private class node{
@@ -23,36 +23,42 @@ public class LinkedListDeque<T> implements Iterable<T> {
         sentinel.prev = sentinel;
         size = 0;
     }
+
     public T getRecursive(int index){
         if(index < 0 || index >= size){
             return null;
         }
         return getRecursiveHelper(sentinel.next ,index);
     }
+
     private T getRecursiveHelper(node p,int index){
         if(index == 0){
             return p.item;
         }
         return  getRecursiveHelper(p.next,index-1);
     }
+    @Override
     public void addFirst(T item){
         node p = new node(item,sentinel,sentinel.next);
         sentinel.next = p;
         p.next.prev = p;
         size++;
     }
+    @Override
     public void addLast(T item){
         node p = new node(item,sentinel.prev,sentinel);
         sentinel.prev = p;
         p.prev.next = p;
         size++;
     }
+    @Override
     public boolean isEmpty(){
         return  size == 0;
     }
     public int size(){
         return size;
     }
+    @Override
     public void printDeque(){
         StringBuilder stringSB = new StringBuilder();
         stringSB.append("{");
@@ -68,6 +74,7 @@ public class LinkedListDeque<T> implements Iterable<T> {
         System.out.println(stringSB.toString());
 
     }
+    @Override
     public T removeFirst(){
         if(isEmpty()){
             return null;
@@ -78,6 +85,7 @@ public class LinkedListDeque<T> implements Iterable<T> {
         size--;
         return (T) p;
     }
+    @Override
     public T removeLast(){
         if (isEmpty()){
             return null;
@@ -88,6 +96,7 @@ public class LinkedListDeque<T> implements Iterable<T> {
         size--;
         return (T) p;
     }
+    @Override
     public T get(int index){
         if (index < 0 || index >= size) {
             return null;
@@ -99,6 +108,7 @@ public class LinkedListDeque<T> implements Iterable<T> {
         }
         return p != sentinel ? (T) p.item : null;
     }
+
     public DequeIterator iterator(){
         return new DequeIterator ();
     }
@@ -117,6 +127,7 @@ public class LinkedListDeque<T> implements Iterable<T> {
             return item;
         }
     }
+    @Override
     public boolean equals(Object o){
         if (this == o) {
             return true; // 如果是同一个对象，直接返回true
