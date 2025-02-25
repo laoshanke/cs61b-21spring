@@ -105,7 +105,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         return items[(nextFirst + 1 + index) % capacity];
     }
 
-    @Override
+
     public Iterator<T> iterator() {
         return new ArrayDequeIterator();
     }
@@ -137,18 +137,22 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ArrayDeque<?> other = (ArrayDeque<?>) o;
-        if (size != other.size) return false;
-        Iterator<?> thisIterator = iterator();
-        Iterator<?> otherIterator = other.iterator();
-        while (thisIterator.hasNext() && otherIterator.hasNext()) {
-            Object thisItem = thisIterator.next();
-            Object otherItem = otherIterator.next();
-            if (thisItem == null && otherItem != null) return false;
-            if (thisItem != null && !thisItem.equals(otherItem)) return false;
+    public boolean equals(Object o){
+        if (this == o) {
+            return true; // 如果是同一个对象，直接返回true
+        }
+        if (o == null ) {
+            return false; // 类型不匹配
+        }
+        ArrayDeque<T> other = (ArrayDeque<T>) o;
+        if (other.size() != this.size()) {
+            return false;
+        }
+
+        for( int i = 0; i < size; i++){
+            if (!this.get(i).equals(other.get(i))) {
+                return false;
+            }
         }
         return true;
     }

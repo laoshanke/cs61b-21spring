@@ -109,10 +109,10 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
         return p != sentinel ? (T) p.item : null;
     }
 
-    public DequeIterator iterator(){
+    public Iterator<T> iterator(){
         return new DequeIterator ();
     }
-    public class DequeIterator implements Iterator<T>{
+    private class DequeIterator implements Iterator<T>{
         private node current;
         public DequeIterator(){
             current = sentinel.next;
@@ -132,21 +132,18 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
         if (this == o) {
             return true; // 如果是同一个对象，直接返回true
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null ) {
             return false; // 类型不匹配
         }
         LinkedListDeque<T> other = (LinkedListDeque<T>) o;
         if (other.size() != this.size()) {
             return false;
         }
-        node p1 = this.sentinel.next;
-        node p2 = other.sentinel.next;
-        while (p1 != sentinel) {
-            if (!p1.item.equals(p2.item)) {
+
+        for( int i = 0; i < size; i++){
+            if (!this.get(i).equals(other.get(i))) {
                 return false;
             }
-            p1 = p1.next;
-            p2 = p2.next;
         }
         return true;
     }
