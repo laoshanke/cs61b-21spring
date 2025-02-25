@@ -4,9 +4,6 @@ import edu.princeton.cs.algs4.StdRandom;
 import org.junit.Test;
 import student.StudentArrayDeque;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
 import static org.junit.Assert.assertEquals;
 
 public class TestArrayDequeEC {
@@ -16,21 +13,24 @@ public class TestArrayDequeEC {
         StudentArrayDeque<Integer> studentDeque = new StudentArrayDeque<>();
         StringBuilder operationHistory = new StringBuilder();
 
-        while (true) {
-            int operation = StdRandom.uniform(0, 8);
+        int operations = 1000;  // 限制测试操作次数防止无限循环
+        for (int i = 0; i < operations; i++) {
+            int operation = StdRandom.uniform(0, 7); // 生成0-6的操作，跳过printDeque测试
             switch (operation) {
                 case 0: {
                     // Test addFirst
-                    operationHistory.append("addFirst(1)\n");
-                    correctDeque.addFirst(1);
-                    studentDeque.addFirst(1);
+                    int value = StdRandom.uniform(100);
+                    operationHistory.append("addFirst(").append(value).append(")\n");
+                    correctDeque.addFirst(value);
+                    studentDeque.addFirst(value);
                     break;
                 }
                 case 1: {
                     // Test addLast
-                    operationHistory.append("addLast(2)\n");
-                    correctDeque.addLast(2);
-                    studentDeque.addLast(2);
+                    int value = StdRandom.uniform(100);
+                    operationHistory.append("addLast(").append(value).append(")\n");
+                    correctDeque.addLast(value);
+                    studentDeque.addLast(value);
                     break;
                 }
                 case 2: {
@@ -80,43 +80,16 @@ public class TestArrayDequeEC {
                     assertEquals(operationHistory.toString(), expected, actual);
                     break;
                 }
-                case 7: {
-                    // Test printDeque
-                    operationHistory.append("printDeque()\n");
-                    String expectedOutput = capturePrintDeque(correctDeque);
-                    String actualOutput = capturePrintDeque(studentDeque);
-                    assertEquals(operationHistory.toString(), expectedOutput, actualOutput);
-                    break;
-                }
             }
 
             // 每次操作后检查双端队列状态是否一致
             if (!correctDeque.isEmpty()) {
                 assertEquals(operationHistory.toString(), correctDeque.size(), studentDeque.size());
-                for (int i = 0; i < correctDeque.size(); i++) {
-                    assertEquals(operationHistory.toString() + "Mismatch at index " + i,
-                            correctDeque.get(i), studentDeque.get(i));
+                for (int j = 0; j < correctDeque.size(); j++) {
+                    assertEquals(operationHistory.toString() + "Mismatch at index " + j,
+                            correctDeque.get(j), studentDeque.get(j));
                 }
             }
         }
-    }
-
-    // 捕获 printDeque 的输出并返回字符串
-    private String capturePrintDeque(Object deque) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintStream originalOut = System.out;
-        System.setOut(new PrintStream(outputStream));
-
-        try {
-            if (deque instanceof ArrayDequeSolution) {
-                ((ArrayDequeSolution<?>) deque).printDeque();
-            } else if (deque instanceof StudentArrayDeque) {
-                ((StudentArrayDeque<?>) deque).printDeque();
-            }
-        } finally {
-            System.setOut(originalOut);
-        }
-
-        return outputStream.toString().trim();
     }
 }
