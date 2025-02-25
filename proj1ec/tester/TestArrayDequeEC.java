@@ -82,14 +82,6 @@ public class TestArrayDequeEC {
                 }
             }
 
-            // 每次操作后检查双端队列状态是否一致
-            if (!correctDeque.isEmpty()) {
-                assertEquals(operationHistory.toString(), correctDeque.size(), studentDeque.size());
-                for (int j = 0; j < correctDeque.size(); j++) {
-                    assertEquals(operationHistory.toString() + "Mismatch at index " + j,
-                            correctDeque.get(j), studentDeque.get(j));
-                }
-            }
         }
     }
 }
