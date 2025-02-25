@@ -48,10 +48,8 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         nextLast = (nextLast + 1) % capacity;
         size++;
     }
-@Override
-    public boolean isEmpty() {
-        return size == 0;
-    }
+
+
 @Override
     public int size() {
         return size;
@@ -135,7 +133,6 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
             return item;
         }
     }
-
     @Override
     public boolean equals(Object o){
         if (this == o) {
@@ -144,7 +141,10 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         if (o == null ) {
             return false; // 类型不匹配
         }
-        ArrayDeque<T> other = (ArrayDeque<T>) o;
+        if (!(o instanceof Deque)) {
+            return false; // 类型不匹配
+        }
+        Deque<T> other = (Deque<T>) o;
         if (other.size() != this.size()) {
             return false;
         }
@@ -156,4 +156,6 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         }
         return true;
     }
+
+
 }
