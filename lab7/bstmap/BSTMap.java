@@ -1,124 +1,108 @@
 package bstmap;
 
+import java.util.*;
 
-import java.util.HashSet;
-
-import java.util.Iterator;
-import java.util.Set;
-
-public class BSTMap<K extends Comparable<K> , V> implements Map61B<K, V> {
-    private Node root;
-    private int size;
-
-    @Override
-    public Iterator<K> iterator() {
-        return null;
-    }
-
-    public class Node{
+public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
+    private class Node {
         public K key;
         public V value;
         public Node left;
         public Node right;
-        public Node parent;
 
-        public Node(K key, V value, Node parent){
+        public Node(K key, V value) {
             this.key = key;
             this.value = value;
-            this.parent = parent;
-            this.left = null;
-            this.right = null;
+            left = null;
+            right = null;
         }
-        public void NodeChild(Node left, Node right){
-            this.left = left;
-            this.right = right;
-        }
-
     }
-    public BSTMap(){
-        root = new Node(null, null, null);
+
+    private Node root;
+    private int size;
+
+    // 修正构造函数：初始化空树
+    public BSTMap() {
+        root = null;
         size = 0;
     }
-    private void insert( Node root, K key, V value){
-        if( root == null){
-            root = new Node(key, value, null);
-        }else if( key.compareTo(root.key) < 0){
-            insert(root.left, key, value);
-        }else if ( key.compareTo(root.key) > 0){
-            insert(root.right, key, value);
-        }else{
-            root.value = value;
-        }
-        size++;
+
+    @Override
+    public void clear() {
+        root = null;
+        size = 0;
     }
-    private V node_get( Node t, K key){
-        if( t.key == null){
+
+    @Override
+    public boolean containsKey(K key) {
+        return getNode(root, key) != null;
+    }
+
+    @Override
+    public V get(K key) {
+        Node node = getNode(root, key);
+        return node == null ? null : node.value;
+    }
+
+    // 递归查找键对应的节点
+    private Node getNode(Node node, K key) {
+        if (node == null || key == null) {
             return null;
-        }else if( key.compareTo(t.key) < 0){
-            return node_get(t.left, key);
-        }else if( key.compareTo(t.key) > 0){
-            return node_get(t.right, key);
-        }else{
-            return t.value;
+        }
+        int cmp = key.compareTo(node.key);
+        if (cmp < 0) {
+            return getNode(node.left, key);
+        } else if (cmp > 0) {
+            return getNode(node.right, key);
+        } else {
+            return node;
         }
     }
 
     @Override
-    public void clear(){
-        root = null;    }
-    /* Returns true if this map contains a mapping for the specified key. */
-    public boolean containsKey(K key){
-        return node_get(root, key) != null;
-    }
-    /* Returns the value to which the specified key is mapped, or null if this
-     * map contains no mapping for the key.
-     */
-    @Override
-    public V get(K key){
-        return node_get(root, key);
-    }
-
-    @Override
-    /* Returns the number of key-value mappings in this map. */
-    public int size(){
+    public int size() {
         return size;
     }
+
     @Override
-    /* Associates the specified value with the specified key in this map. */
-    public void put(K key, V value){
-        insert(root, key, value);
+    public void put(K key, V value) {
+        root = put(root, key, value); // 递归插入
     }
 
-    /* Returns a Set view of the keys contained in this map. Not required for Lab 7.
-     * If you don't implement this, throw an UnsupportedOperationException. */
-    public Set<K> keySet(){
-        HashSet <K> keys = new HashSet<>();
-        keyset_Helper(keys, root);
-        return keys;
-    }
-    private void keyset_Helper(HashSet <K> keys, Node t){
-        if( t != null && t.key != null){
-            keys.add(t.key);
-            keyset_Helper(keys, t.left);
-            keyset_Helper(keys, t.right);
+    // 递归插入或更新节点
+    private Node put(Node node, K key, V value) {
+        if (node == null) {
+            size++;
+            return new Node(key, value);
         }
+        int cmp = key.compareTo(node.key);
+        if (cmp < 0) {
+            node.left = put(node.left, key, value);
+        } else if (cmp > 0) {
+            node.right = put(node.right, key, value);
+        } else {
+            node.value = value; // 键已存在则更新值
+        }
+        return node;
     }
 
-
-    /* Removes the mapping for the specified key from this map if present.
-     * Not required for Lab 7. If you don't implement this, throw an
-     * UnsupportedOperationException. */
+    // 以下方法未实现，保留异常
     @Override
-    public V remove(K key){
+    public V remove(K key) {
         throw new UnsupportedOperationException();
     }
 
-    /* Removes the entry for the specified key only if it is currently mapped to
-     * the specified value. Not required for Lab 7. If you don't implement this,
-     * throw an UnsupportedOperationException.*/
-    public V remove(K key, V value){
+    @Override
+    public V remove(K key, V value) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public Set<K> keySet() {
+        throw new UnsupportedOperationException();
+    }
 
+    @Override
+    public Iterator<K> iterator() {
+        throw new UnsupportedOperationException();
+    }
 }
