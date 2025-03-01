@@ -12,11 +12,12 @@ import static java.lang.Math.abs;
  *  @author YOUR NAME HERE
  */
 public class MyHashMap<K, V> implements Map61B<K, V> {
-    static final double LOADFACTOR= 0.75;
+    private static final double LOADFACTOR= 0.75;
     double loadFactor;
     static final int INITIALSIZE = 16;
-    private int initialSize;
+
     private int size;
+    private int capacity;
     /**
      * Protected helper class to store key/value pairs
      * The protected qualifier allows subclass access
@@ -37,17 +38,11 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     /** Constructors */
     public MyHashMap() {
-        initialSize = INITIALSIZE;
-        size = 0;
-        loadFactor = LOADFACTOR;
-        buckets = createTable( initialSize);
+        this(INITIALSIZE, LOADFACTOR);
     }
 
     public MyHashMap(int initialSize) {
-        this.loadFactor = LOADFACTOR;
-        this.initialSize = initialSize;
-        size = 0;
-        buckets = createTable( initialSize);
+        this(INITIALSIZE, LOADFACTOR);
     }
 
     /**
@@ -59,9 +54,9 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      */
     public MyHashMap(int initialSize, double maxLoad) {
         this.loadFactor = maxLoad;
-        this.initialSize = initialSize;
+        this.capacity = initialSize;
         size = 0;
-        buckets = createTable( initialSize);
+        buckets = createTable( capacity);
     }
 
     /**
@@ -111,7 +106,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     /** Removes all of the mappings from this map. */
     public void clear(){
         size = 0;
-        buckets = createTable( initialSize);
+        buckets = createTable( capacity);
     }
     /** Returns true if this map contains a mapping for the specified key. */
     public boolean containsKey(K key){
@@ -123,6 +118,9 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      */
     public V get(K key){
         int hashcd   = abs(key.hashCode())% buckets.length;
+        if(buckets[hashcd] == null){
+            return null;
+        }
         Collection<Node> bucket = buckets[hashcd];
         for(Node node : bucket){
             if(node.key.equals(key)){
@@ -161,6 +159,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     public void resize(int newSize){
         Collection<Node>[] newBuckets = createTable(newSize);
         for(Collection<Node> bucket : buckets){
+            if (bucket == null) continue;  // 跳过空桶
             for(Node node : bucket){
                 int newHashcd   = abs(node.key.hashCode())% newBuckets.length;
                 if (newBuckets[newHashcd] == null) {
@@ -175,6 +174,9 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     public Set<K> keySet(){
         Set<K> keys = new HashSet<>();
         for(Collection<Node> bucket : buckets){
+            if(bucket == null){
+                continue;
+            }
             for(Node node : bucket){
                 keys.add(node.key);
             }
@@ -189,6 +191,9 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     public V remove(K key){
         int hashcd   = abs(key.hashCode())% buckets.length;
         Collection<Node> bucket = buckets[hashcd];
+        if(bucket == null){
+            return null;
+        }
         for(Node node : bucket){
             if(node.key.equals(key)){
                 bucket.remove(node);
@@ -206,6 +211,9 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     public V remove(K key, V value){
         int hashcd   = abs(key.hashCode())% buckets.length;
         Collection<Node> bucket = buckets[hashcd];
+        if(bucket == null){
+            return null;
+        }
         for(Node node : bucket){
             if(node.key.equals(key) && node.value.equals(value))
                 bucket.remove(node);
