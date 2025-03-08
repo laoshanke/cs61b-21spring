@@ -69,7 +69,26 @@ public class Commit  implements Dumpable{
 
     /**return the id of the commit*/
     public String get_id(){
-        return  Utils.sha1(this);
+        List<Object> vals = new ArrayList<>();
+        // 添加时间戳
+        vals.add(timestamp.toString());
+        // 添加提交信息
+        vals.add(message);
+        // 添加父提交ID（非空）
+        for (String parentId : parent_ids) {
+            if (parentId != null) {
+                vals.add(parentId);
+            }
+        }
+        // 添加按文件名排序的blob条目
+        List<String> sortedFiles = new ArrayList<>(blobids.keySet());
+        Collections.sort(sortedFiles);
+        for (String file : sortedFiles) {
+            vals.add(file);
+            vals.add(blobids.get(file));
+        }
+        // 生成SHA-1哈希
+        return Utils.sha1(vals);
     }
 
     public String blobids_get( String Name_id){
