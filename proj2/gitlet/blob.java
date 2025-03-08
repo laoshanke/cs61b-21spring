@@ -19,16 +19,8 @@ public class blob implements Serializable {
     public String getName() {
         return name;
     }
-    public void save_objects(){
-        File file = Utils.join(Repository.OBJECTS_DIR, this.id);
-        if(!file.exists()){
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        Utils.writeObject(file, this);
+    public byte[] getContent() {
+        return content;
     }
     public void save_add(){
         File file = Utils.join(Repository.ADD_DIR, this.id);

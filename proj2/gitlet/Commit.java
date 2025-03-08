@@ -55,15 +55,15 @@ public class Commit  implements Dumpable{
         blobids = new HashMap<String,String>();
     }
     /** Creates a commit with a message. */
-    public Commit(String message){
+    public Commit(String message1){
         timestamp = new Date();
-        this.message = message;
+        message = message1;
         parent_ids = new String[2];
         Commit commit = get_head_branch_pointer_commit();
         parent_ids[0] = commit.get_id();
         blobids = new HashMap<String,String>();
-        for( String blob:commit.getblobids().values()){
-            blobids.put(get_blob_name(blob),blob);
+        for( String name:commit.getblobids().keySet()){
+            blobids.put(name,commit.blobids_get(name));
         }
     }
 
@@ -71,16 +71,7 @@ public class Commit  implements Dumpable{
     public String get_id(){
         return  Utils.sha1(this);
     }
-    /** save this commit*/
-    public void save(){
-        File wefile = join(Repository.OBJECTS_DIR,get_id());
-        try {
-            wefile.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        Utils.writeObject(wefile,this);
-    }
+
     public String blobids_get( String Name_id){
         return blobids.get(Name_id);
     }
@@ -101,7 +92,10 @@ public class Commit  implements Dumpable{
         }
         String time = String.format("Date: %1$ta %1$tb %1$te %1$tH:%1$tM:%1$tS %1$tY %1$tz", timestamp);
         System.out.println(message);
+        System.out.println();
     }
+
+
 
     /* TODO: fill in the rest of this class. */
 }
