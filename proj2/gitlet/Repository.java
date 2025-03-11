@@ -208,6 +208,9 @@ public class Repository {
      */
     public static blob read_blob_from_id(String id) {
         File file = join(BLOBS_DIR,id.substring(0,2),id.substring(2));
+        if (!file.exists()) {
+            throw new GitletException("Blob with id " + id + " does not exist.");
+        }
         return readObject(file,blob.class);
     }
 
@@ -219,25 +222,44 @@ public class Repository {
     }
 
     public static void commit(String message) {
-        Commit new_commit = new Commit(message);
+        // Check if staging area is empty
         List<String> addfiles = Utils.plainFilenamesIn(Repository.ADD_DIR);
+        List<String> rmfiles = Utils.plainFilenamesIn(Repository.REMOVE_DIR);
+        
+        if ((addfiles == null || addfiles.isEmpty()) && (rmfiles == null || rmfiles.isEmpty())) {
+            System.out.println("No changes added to the commit.");
+            System.exit(0);
+        }
+        
+        Commit new_commit = new Commit(message);
+        
         /** add the blob in add dir to the blobids 如果文件名重复那么更新id，否则加新的键值对并储存blob到object文件夹*/
         if (addfiles != null) {
-            for (String addfile : addfiles) {
-                String name_add = Repository.get_blob_name(addfile);
+            for (String blobId : addfiles) {
+                File addFile = join(ADD_DIR, blobId);
+                if (!addFile.exists()) {
+                    continue; // Skip if file doesn't exist
+                }
+                
+                blob b = readObject(addFile, blob.class);
+                String name_add = b.getName();
                 String id_same_name = new_commit.blobids_get(name_add);
                 if (id_same_name != null) {
                     new_commit.blobids_remove(name_add);
                 }
-                new_commit.blobids_put(name_add, addfile);
-                save_blob(read_blob_from_id(addfile));
+                new_commit.blobids_put(name_add, b.getID());
+                save_blob(b);
             }
         }
+        
         /** remove the blob in rm dir to the blobids*/
-        List<String> rmfiles = Utils.plainFilenamesIn(Repository.REMOVE_DIR);
         if (rmfiles != null) {
-            for (String rmfile : rmfiles) {
-                File rmFile = join(REMOVE_DIR, rmfile);
+            for (String blobId : rmfiles) {
+                File rmFile = join(REMOVE_DIR, blobId);
+                if (!rmFile.exists()) {
+                    continue; // Skip if file doesn't exist
+                }
+                
                 blob b = readObject(rmFile, blob.class);
                 String name_rm = b.getName();
                 if (new_commit.blobids_containsKey(name_rm)) {
@@ -245,6 +267,7 @@ public class Repository {
                 }
             }
         }
+        
         save_commit(new_commit);
         branch_create_update(readContentsAsString(HEAD_FILE), new_commit);
         // 更新暂存区
@@ -293,15 +316,22 @@ public class Repository {
      Commit now_commit = get_head_branch_pointer_commit();
      if(now_commit.blobids_containsKey(file_name)){
          file_exist = true;
-         File rmfile = join(Repository.REMOVE_DIR,now_commit.blobids_get(file_name));
+         String blobId = now_commit.blobids_get(file_name);
+         File rmfile = join(Repository.REMOVE_DIR, blobId);
          if(!rmfile.exists()){
              try {
                  rmfile.createNewFile();
              } catch (IOException e) {
                  throw new RuntimeException(e);
              }
+             // Get the blob from the existing commit and write it to the REMOVE_DIR
+             blob b = read_blob_from_id(blobId);
+             Utils.writeObject(rmfile, b);
          }
-         join(CWD, file_name).delete();
+         File cwdFile = join(CWD, file_name);
+         if (cwdFile.exists()) {
+             cwdFile.delete();
+         }
      }
      if(!file_exist){
          System.out.println("No reason to remove the file.");
@@ -387,27 +417,44 @@ public class Repository {
     public static void status(){
         System.out.println("=== Branches ===");
         String head_branch = readContentsAsString(HEAD_FILE);
-        List<String> branch_names = Utils.plainFilenamesIn(Repository.REFS_DIR);
-        branch_names.remove( head_branch);
+        List<String> branch_names = new ArrayList<>(Utils.plainFilenamesIn(Repository.REFS_DIR));
+        branch_names.remove("HEAD"); // Remove HEAD file from branch list
+        
+        // Print current branch with asterisk
         System.out.println("*" + head_branch);
+        
+        // Print other branches
         Collections.sort(branch_names);
-        for(String branch_name : branch_names){
-            System.out.println(branch_name);
+        for(String branch_name : branch_names) {
+            if (!branch_name.equals(head_branch)) {
+                System.out.println(branch_name);
+            }
         }
+        
         System.out.println();
         System.out.println("=== Staged Files ===");
         List<String> addfiles = Utils.plainFilenamesIn(Repository.ADD_DIR);
-        Collections.sort(addfiles);
-        for(String addfile : addfiles){
-            System.out.println(Repository.get_blob_name(addfile));
+        if (addfiles != null) {
+            Collections.sort(addfiles);
+            for(String addfile : addfiles){
+                File addFile = join(ADD_DIR, addfile);
+                blob b = readObject(addFile, blob.class);
+                System.out.println(b.getName());
+            }
         }
+        
         System.out.println();
         System.out.println("=== Removed Files ===");
         List<String> rmfiles = Utils.plainFilenamesIn(Repository.REMOVE_DIR);
-        Collections.sort(rmfiles);
-        for(String rmfile : rmfiles){
-            System.out.println(Repository.get_blob_name(rmfile));
+        if (rmfiles != null) {
+            Collections.sort(rmfiles);
+            for(String rmfile : rmfiles){
+                File rmFile = join(REMOVE_DIR, rmfile);
+                blob b = readObject(rmFile, blob.class);
+                System.out.println(b.getName());
+            }
         }
+        
         System.out.println();
         System.out.println("=== Modifications Not Staged For Commit ===");
         List<String> cwd_files = Utils.plainFilenamesIn(CWD);

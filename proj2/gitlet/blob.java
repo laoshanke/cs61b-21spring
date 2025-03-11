@@ -11,9 +11,9 @@ public class blob implements Serializable {
     public blob(String name, byte[] content) {
         this.name = name;
         this.content = content;
-        this.id = Utils.sha1(name, content);
+        this.id = Utils.sha1( content);
     }
-    public String getID() {
+     public String getID() {
         return id;
     }
     public String getName() {
