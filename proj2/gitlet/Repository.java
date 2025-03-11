@@ -78,7 +78,7 @@ public class Repository {
      * which initially points to this initial commit, and master will be the current branch. T
      * he timestamp for this initial commit will be 00:00:00 UTC,
      * Thursday, 1 January 1970 in whatever format you choose for dates
-     * (this is called “The (Unix) Epoch”, represented internally by the time 0.)
+     * (this is called "The (Unix) Epoch", represented internally by the time 0.)
      * Since the initial commit in all repositories created by Gitlet will have exactly the same content,
      * it follows that all repositories will automatically share this commit (they will all have the same UID) and all commits in all repositories will trace back to it.
      * <p>
@@ -137,7 +137,7 @@ public class Repository {
      * add
      * Usage: java gitlet.Main add [file name]
      * <p>
-     * Description: Adds a copy of the file as it currently exists to the staging area (see the description of the commit command). For this reason, adding a file is also called staging the file for addition. Staging an already-staged file overwrites the previous entry in the staging area with the new contents. The staging area should be somewhere in .gitlet. If the current working version of the file is identical to the version in the current commit, do not stage it to be added, and remove it from the staging area if it is already there (as can happen when a file is changed, added, and then changed back to it’s original version). The file will no longer be staged for removal (see gitlet rm), if it was at the time of the command.
+     * Description: Adds a copy of the file as it currently exists to the staging area (see the description of the commit command). For this reason, adding a file is also called staging the file for addition. Staging an already-staged file overwrites the previous entry in the staging area with the new contents. The staging area should be somewhere in .gitlet. If the current working version of the file is identical to the version in the current commit, do not stage it to be added, and remove it from the staging area if it is already there (as can happen when a file is changed, added, and then changed back to it's original version). The file will no longer be staged for removal (see gitlet rm), if it was at the time of the command.
      * <p>
      * Runtime: In the worst case, should run in linear time relative to the size of the file being added and lgN
      * , for N
@@ -165,16 +165,16 @@ public class Repository {
         /** 如果文件已经存在commit和add区中，则删除add区中文件
          * 不然只是退出 */
         String existingBlobId = now_commit.getblobids().get(file_name);
-        if (existingBlobId != null && existingBlobId.equals(nowblob.getId())) {
+        if (existingBlobId != null && existingBlobId.equals(nowblob.getID())) {
             // 当前提交已存在同名且内容相同的文件，无需暂存
-            File addFile = join(ADD_DIR, nowblob.getId());
+            File addFile = join(ADD_DIR, nowblob.getID());
             if (addFile.exists()) {
                 addFile.delete(); // 清理暂存区中的重复文件
             }
             return;
         }
         /** 如果文件已经存在rm区中，则删除rm区中文件 */
-        File rmfile = join(REMOVE_DIR, nowblob.getId());
+        File rmfile = join(REMOVE_DIR, nowblob.getID());
         if (rmfile.exists()) {
             rmfile.delete();
         }
@@ -416,12 +416,12 @@ public class Repository {
         for(String cwd_file : cwd_files){
            String blob_id =filename_track_commit(cwd_file);
            /**  在当前提交中被跟踪，但在工作目录中已修改且未暂存；*/
-           if(blob_id != null && !blob_id.equals(Repository.from_name_get_blob(cwd_file).getId()) && filename_add(cwd_file) == null){
+           if(blob_id != null && !blob_id.equals(Repository.from_name_get_blob(cwd_file).getID()) && filename_add(cwd_file) == null){
                String name_rm = cwd_file + " (modified)";
                wait_print.add(name_rm);
            }
            /** 已暂存以供添加，但其内容与工作目录中的内容不同；*/
-           if(filename_add(cwd_file)!= null && !filename_add(cwd_file).equals(Repository.from_name_get_blob(cwd_file).getId()) ){
+           if(filename_add(cwd_file)!= null && !filename_add(cwd_file).equals(Repository.from_name_get_blob(cwd_file).getID()) ){
                String name_add = cwd_file + " (modified)";
                wait_print.add(name_add);
            }
@@ -540,7 +540,7 @@ public class Repository {
     }
     public static void checkout1(String name) {
         /** Takes the version of the file as it exists in the head commit and puts it in the working directory,
-         *  overwriting the version of the file that’s already there if there is one. The new version of the file is not staged.
+         *  overwriting the version of the file that's already there if there is one. The new version of the file is not staged.
          *  If the file does not exist in the previous commit, abort,
          *  printing the error message File does not exist in that commit. Do not change the CWD.*/
         Commit now_commit = get_head_branch_pointer_commit();
@@ -557,7 +557,7 @@ public class Repository {
     }
     public  static  void checkout2(String id, String file_name){
         /**Takes the version of the file as it exists in the commit with the given id, and puts it in the working directory,
-         * overwriting the version of the file that’s already there if there is one. The new version of the file is not staged.*/
+         * overwriting the version of the file that's already there if there is one. The new version of the file is not staged.*/
         Commit now_commit = read_commit_from_id(id);
         if(!now_commit.blobids_containsKey(file_name)){
             System.out.println("File does not exist in that commit.");
@@ -571,7 +571,7 @@ public class Repository {
        /**: Creates a new branch with the given name, and points it at the current head commit.
         * A branch is nothing more than a name for a reference (a SHA-1 identifier) to a commit node.
         * This command does NOT immediately switch to the newly created branch (just as in real Git).
-        * Before you ever call branch, your code should be running with a default branch called “master”. */
+        * Before you ever call branch, your code should be running with a default branch called "master". */
         File branch_file = join(REFS_DIR,branch_name);
         if(branch_file.exists()){
             System.out.println("A branch with that name already exists.");
@@ -616,11 +616,11 @@ public class Repository {
         writeObject(file,commit);
     }
     public static void save_blob(blob blob){
-        File dir = Utils.join(Repository.BLOBS_DIR, blob.getId().substring(0,2));
+        File dir = Utils.join(Repository.BLOBS_DIR, blob.getID().substring(0,2));
         if(!dir.exists()){
             dir.mkdir();
         }
-        File file =  Utils.join(dir,blob.getId().substring(2));
+        File file =  Utils.join(dir,blob.getID().substring(2));
         plus_file_create(file);
         Utils.writeObject(file, blob);
     }
