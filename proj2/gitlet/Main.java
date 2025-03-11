@@ -104,6 +104,14 @@ public class Main {
                     System.exit(0);
                 }
                 Repository.rm_branch(args[1]);
+            case "reset":
+                if(args.length != 2|| args[1].getClass() != String.class){
+                    System.out.println("Incorrect operands");
+                    System.exit(0);
+                }
+                check_init();
+                Repository.reset(args[1]);
+                
             default:
             System.out.println("message No command with that name exists");
             System.exit(0);
