@@ -237,7 +237,9 @@ public class Repository {
         List<String> rmfiles = Utils.plainFilenamesIn(Repository.REMOVE_DIR);
         if (rmfiles != null) {
             for (String rmfile : rmfiles) {
-                String name_rm = Repository.get_blob_name(rmfile);
+                File rmFile = join(REMOVE_DIR, rmfile);
+                blob b = readObject(rmFile, blob.class);
+                String name_rm = b.getName();
                 if (new_commit.blobids_containsKey(name_rm)) {
                     new_commit.blobids_remove(name_rm);
                 }
@@ -245,7 +247,7 @@ public class Repository {
         }
         save_commit(new_commit);
         branch_create_update(readContentsAsString(HEAD_FILE), new_commit);
-        /** 更新暂存区*/
+        // 更新暂存区
         stage_update();
     }
     /**
@@ -633,7 +635,7 @@ public class Repository {
         writeObject(file,commit);
     }
     public static void save_blob(blob blob){
-        File dir = Utils.join(Repository.BLOBS_DIR, blob.getId().substring(0,2));
+        File dir = Utils.join(Repository.BLOBS_DIR, blob.getID().substring(0,2));
         if(!dir.exists()){
             dir.mkdir();
         }

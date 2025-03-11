@@ -34,9 +34,6 @@ public class Commit  implements Dumpable{
     private String[] parent_ids;
     /** The tracked blob  of this Commit. */
     private TreeMap<String,String> blobids;
-    public Date getTimestamp() {
-        return timestamp;
-    }
     public String getMessage() {
         return message;
     }
