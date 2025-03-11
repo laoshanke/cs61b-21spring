@@ -399,9 +399,6 @@ public class Repository {
         for(String addfile : addfiles){
             System.out.println(Repository.get_blob_name(addfile));
         }
-        for(String addfile : addfiles){
-            System.out.println(Repository.get_blob_name(addfile));
-        }
         System.out.println();
         System.out.println("=== Removed Files ===");
         List<String> rmfiles = Utils.plainFilenamesIn(Repository.REMOVE_DIR);
@@ -519,23 +516,24 @@ public class Repository {
             }
         }
     }
-    public static void checkout3( String name){
+    public static void checkout3(String name){
         List<String> branchname = plainFilenamesIn(REFS_DIR);
-        if(name == readContentsAsString(HEAD_FILE)){
+        if(name.equals(readContentsAsString(HEAD_FILE))){
             System.out.println("No need to checkout the current branch.");
             return;
         }
         if(branchname.contains(name)){/**获取给定分支头部提交中的所有文件，并将它们放入工作目录，覆盖已存在的文件版本。 此外，在该命令结束时，给定的分支将被视为当前分支 (HEAD)。
          当前分支中被跟踪但在被检出分支中不存在的任何文件都将被删除。暂存区将被清除，除非被检出的分支是当前分支（请参阅下面的失败情况）。 */
+            // 先检查未跟踪文件
+            checkout_reset_wronghelper(readContentsAsString(join(REFS_DIR,name)));
+            
             checkout_commit_files(readContentsAsString(join(REFS_DIR,name)));
             stage_update();
             head_pointer_update(name);
             rm_commit_notracked_files(readContentsAsString(join(REFS_DIR,name)));
-            checkout_reset_wronghelper(readContentsAsString(join(REFS_DIR,name)));
-
         }else{
-                System.out.println("No such branch exists.");
-                System.exit(0);
+            System.out.println("No such branch exists.");
+            System.exit(0);
         }
     }
     public static void checkout1(String name) {
@@ -558,7 +556,14 @@ public class Repository {
     public  static  void checkout2(String id, String file_name){
         /**Takes the version of the file as it exists in the commit with the given id, and puts it in the working directory,
          * overwriting the version of the file that's already there if there is one. The new version of the file is not staged.*/
-        Commit now_commit = read_commit_from_id(id);
+        // 支持缩短的commit ID
+        String fullId = findCommitId(id);
+        if (fullId == null) {
+            System.out.println("No commit with that id exists.");
+            System.exit(0);
+        }
+        
+        Commit now_commit = read_commit_from_id(fullId);
         if(!now_commit.blobids_containsKey(file_name)){
             System.out.println("File does not exist in that commit.");
             return;
@@ -566,7 +571,8 @@ public class Repository {
         String blob_id = now_commit.blobids_get(file_name);
         byte[] content = Utils.readContents(join(BLOBS_DIR,blob_id.substring(0,2),blob_id.substring(2)));
         plus_file_create(join(CWD,file_name));
-        Utils.writeContents(join(CWD,file_name),content);}
+        Utils.writeContents(join(CWD,file_name),content);
+    }
     public static void branch( String branch_name) {
        /**: Creates a new branch with the given name, and points it at the current head commit.
         * A branch is nothing more than a name for a reference (a SHA-1 identifier) to a commit node.
@@ -590,20 +596,31 @@ public class Repository {
             System.out.println("A branch with that name does not exist.");
             System.exit(0);
         }
-        if(readContentsAsString(HEAD_FILE).equals( branch_file)){
+        if(branch_name.equals(readContentsAsString(HEAD_FILE))){
             System.out.println("Cannot remove the current branch.");
             System.exit(0);
         }
         branch_file.delete();
     }
     public static void reset(String id){
-        if(!join(COMMITS_DIR,id.substring(0,2),id.substring(2)).exists()){
+        // 支持缩短的commit ID
+        String fullId = findCommitId(id);
+        if (fullId == null) {
             System.out.println("No commit with that id exists.");
             System.exit(0);
         }
-        checkout_reset_wronghelper(id);
-        checkout_commit_files(id);
-        rm_commit_notracked_files(id);
+        
+        // 先检查未跟踪文件
+        checkout_reset_wronghelper(fullId);
+        
+        // 然后执行reset
+        checkout_commit_files(fullId);
+        rm_commit_notracked_files(fullId);
+        
+        // 更新当前分支指向
+        branch_create_update(readContentsAsString(HEAD_FILE), read_commit_from_id(fullId));
+        
+        // 清空暂存区
         stage_update();
     }
     public static void save_commit(Commit commit){
@@ -616,7 +633,7 @@ public class Repository {
         writeObject(file,commit);
     }
     public static void save_blob(blob blob){
-        File dir = Utils.join(Repository.BLOBS_DIR, blob.getID().substring(0,2));
+        File dir = Utils.join(Repository.BLOBS_DIR, blob.getId().substring(0,2));
         if(!dir.exists()){
             dir.mkdir();
         }
@@ -638,6 +655,19 @@ public class Repository {
     public static Commit read_commit_from_id(String id){
         File file = join(COMMITS_DIR,id.substring(0,2),id.substring(2));
         return readObject(file,Commit.class);
+    }
+
+    /**
+     * 根据缩短的commit ID查找完整的commit ID
+     */
+    public static String findCommitId(String shortId) {
+        List<String> allCommits = getAllCommitHashes(COMMITS_DIR);
+        for (String id : allCommits) {
+            if (id.startsWith(shortId)) {
+                return id;
+            }
+        }
+        return null;
     }
 
     }

@@ -13,7 +13,7 @@ public class blob implements Serializable {
         this.content = content;
         this.id = Utils.sha1(name, content);
     }
-    public String getId() {
+    public String getID() {
         return id;
     }
     public String getName() {
