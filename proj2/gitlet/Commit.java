@@ -33,7 +33,7 @@ public class Commit  implements Dumpable{
     /** The parent id of this Commit. */
     private String[] parent_ids;
     /** The tracked blob  of this Commit. */
-    private HashMap<String,String> blobids;
+    private TreeMap<String,String> blobids;
     public Date getTimestamp() {
         return timestamp;
     }
@@ -43,7 +43,7 @@ public class Commit  implements Dumpable{
     public String[] getParent_ids() {
         return parent_ids;
     }
-    public HashMap<String,String> getblobids() {
+    public TreeMap<String,String> getblobids() {
         return blobids;
     }
 
@@ -52,7 +52,7 @@ public class Commit  implements Dumpable{
         timestamp = new Date(0);
         message = "initial commit";
         parent_ids = new String[2];
-        blobids = new HashMap<String,String>();
+        blobids = new TreeMap<String,String>();
     }
     /** Creates a commit with a message. */
     public Commit(String message1){
@@ -61,7 +61,7 @@ public class Commit  implements Dumpable{
         parent_ids = new String[2];
         Commit commit = get_head_branch_pointer_commit();
         parent_ids[0] = commit.get_id();
-        blobids = new HashMap<String,String>();
+        blobids = new TreeMap<String,String>();
         for( String name:commit.getblobids().keySet()){
             blobids.put(name,commit.blobids_get(name));
         }
