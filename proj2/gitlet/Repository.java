@@ -330,24 +330,7 @@ public class Repository {
             }
         }
     }
-    public static void checkout3(String name){
-        List<String> branchname = plainFilenamesIn(REFS_DIR);
-        if(name.equals(readContentsAsString(HEAD_FILE))){
-            System.out.println("No need to checkout the current branch.");
-            return;
-        }
-        if(branchname.contains(name)){
-            File ref = join(REFS_DIR,name);
-            checkout_reset_wronghelper(readContentsAsString(ref));
-            checkout_commit_files(readContentsAsString(ref));
-            rm_commit_notracked_files(readContentsAsString(ref));
-            head_pointer_update(name);
-            stage_update();
-        }else{
-            System.out.println("No such branch exists.");
-            return;
-        }
-    }
+
     public static void checkout1(String name) {
         Commit now_commit = get_commit_from_branch(get_head_branch());
         if(!now_commit.blobids_containsKey(name)) {
@@ -596,19 +579,41 @@ public class Repository {
         Utils.writeContents(join(CWD, file_name), content);
     }
     public static String full_id_finder(String id) {
+        if (id.length() == 40) {
+            return id;
+        }
         String prefix = id.substring(0, 2);
         List<String> dirs = plainFilenamesIn(COMMITS_DIR);
         for (String dir : dirs) {
             if (dir.equals(prefix)) {
                 List<String> files = plainFilenamesIn(join(COMMITS_DIR, dir));
                 for (String file : files) {
-                    if (file.substring(0, 6).equals(id)) {
+                    if (file.startsWith(id.substring(2))) {
                         return dir + file;
                     }
                 }
             }
         }
-    return null;}
+        return null;
+    }public static void checkout3(String name) {
+    List<String> branchname = plainFilenamesIn(REFS_DIR);
+    if (name.equals(readContentsAsString(HEAD_FILE))) {
+        System.out.println("No need to checkout the current branch.");
+        return;
+    }
+    if (!branchname.contains(name)) {
+        System.out.println("No such branch exists.");
+        return;
+    }
+    File ref = join(REFS_DIR, name);
+    String commitId = readContentsAsString(ref);
+    checkout_reset_wronghelper(commitId);
+    checkout_commit_files(commitId);
+    rm_commit_notracked_files(commitId);
+    head_pointer_update(name);
+    stage_update();
+}
+
 
 }
 
