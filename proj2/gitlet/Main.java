@@ -61,9 +61,9 @@ public class Main {
                 break;
             case "global-log":
                 if(args.length != 1){
-                System.out.println("Incorrect operands.");
-                System.exit(0);
-                }   
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
                 check_init();
                 Repository.global_log();
                 break;
@@ -77,8 +77,8 @@ public class Main {
                 break;
             case "status":
                 if(args.length != 1){
-                System.out.println("Incorrect operands.");
-                System.exit(0);
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
                 }
                 check_init();
                 Repository.status();
@@ -102,7 +102,7 @@ public class Main {
                 }
                 break;
             case "branch":
-            
+
                 if(args.length != 2){
                     System.out.println("Incorrect operands.");
                     System.exit(0);
@@ -131,7 +131,7 @@ public class Main {
                 System.exit(0);
         }
     }
-    
+
     public static void check_init(){
         if(!Repository.GITLET_DIR.exists()){
             System.out.println("Not in an initialized Gitlet directory.");

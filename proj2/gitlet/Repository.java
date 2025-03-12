@@ -140,28 +140,38 @@ public class Repository {
         // Check if staging area is empty
         List<String> addfiles = Utils.plainFilenamesIn(Repository.ADD_DIR);
         List<String> rmfiles = Utils.plainFilenamesIn(Repository.REMOVE_DIR);
-        
-        if ( addfiles.isEmpty() &&  rmfiles.isEmpty()) {
+
+        if ((addfiles == null || addfiles.isEmpty()) && (rmfiles == null || rmfiles.isEmpty())) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
-        
+
         if(message.equals("")){
             System.out.println("Please enter a commit message.");
             System.exit(0);
         }
-        
+
         Commit new_commit = new Commit(message);
 
-        // 处理暂存区添加的文件
-        for (String filename : addfiles) {
-            String blobId = readContentsAsString(join(ADD_DIR, filename));
-            new_commit.blobids_put(filename, blobId);
+        /** add the blob in add dir to the blobids 如果文件名重复那么更新id，否则加新的键值对并储存blob到object文件夹*/
+        if (addfiles != null) {
+            for (String filename : addfiles) {
+                File addFile = join(ADD_DIR, filename);
+                blob b = read_blob_from_id(Utils.readContentsAsString(addFile));
+                if (new_commit.blobids_get(filename) != null) {
+                    new_commit.blobids_remove(filename);
+                }
+                new_commit.blobids_put(filename, b.getID());
+                save_blob(b);
+            }
         }
-
-        // 处理暂存区删除的文件
-        for (String filename : rmfiles) {
-            new_commit.blobids_remove(filename);
+        /** remove the blob in rm dir to the blobids*/
+        if (rmfiles != null) {
+            for (String filename : rmfiles) {
+                if (new_commit.blobids_containsKey(filename)) {
+                    new_commit.blobids_remove(filename);
+                }
+            }
         }
         save_commit(new_commit);
         branch_create_update(get_head_branch(), new_commit);
@@ -309,7 +319,6 @@ public class Repository {
                 System.out.println(cwd_file);
             }
         }
-        System.out.println();
     }
 
     public static void checkout_reset_wronghelper(String id) {
@@ -321,7 +330,24 @@ public class Repository {
             }
         }
     }
-
+    public static void checkout3(String name){
+        List<String> branchname = plainFilenamesIn(REFS_DIR);
+        if(name.equals(readContentsAsString(HEAD_FILE))){
+            System.out.println("No need to checkout the current branch.");
+            return;
+        }
+        if(branchname.contains(name)){
+            File ref = join(REFS_DIR,name);
+            checkout_reset_wronghelper(readContentsAsString(ref));
+            checkout_commit_files(readContentsAsString(ref));
+            rm_commit_notracked_files(readContentsAsString(ref));
+            head_pointer_update(name);
+            stage_update();
+        }else{
+            System.out.println("No such branch exists.");
+            return;
+        }
+    }
     public static void checkout1(String name) {
         Commit now_commit = get_commit_from_branch(get_head_branch());
         if(!now_commit.blobids_containsKey(name)) {
@@ -354,7 +380,7 @@ public class Repository {
         }
         plus_file_create(branch_file);
         writeContents(branch_file,get_commit_from_branch( get_head_branch()).get_id());
-        branch_create_update( branch_name, get_commit_from_branch( get_head_branch()));
+        head_pointer_update(branch_name);
     }
     public static void rm_branch(String branch_name){
         File branch_file = join(REFS_DIR,branch_name);
@@ -457,27 +483,18 @@ public class Repository {
      * 更新暂存区
      */
     public static void stage_update() {
-        deleteDirectory(Repository.ADD_DIR);
-        deleteDirectory(Repository.REMOVE_DIR);
-        // 确保目录存在（不存在则创建）
-        REMOVE_DIR.mkdirs(); // 使用 mkdirs() 而非 mkdir()
-        ADD_DIR.mkdirs();
+        // 仅删除目录中的文件，保留目录结构
+        clearDirectory(ADD_DIR);
+        clearDirectory(REMOVE_DIR);
     }
-    /**
-     * 删除一个目录和它下的所有文件
-     */
-    public static boolean deleteDirectory(File dir) {
-        if (dir.isDirectory()) {
-            File[] children = dir.listFiles();
-            if (children != null) {
-                for (File child : children) {
-                    boolean success = deleteDirectory(child); // 递归删除子文件/目录
-                    if (!success) return false;
-                }
+
+    private static void clearDirectory(File dir) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                f.delete();
             }
         }
-        // 删除空目录或文件
-        return dir.delete(); // 关键：必须调用 delete()！
     }
     /** 返回父提交*/
     public static Commit[] get_parent_commit(Commit now_commit){
@@ -572,69 +589,19 @@ public class Repository {
         Utils.writeContents(join(CWD, file_name), content);
     }
     public static String full_id_finder(String id) {
-        if (id.length() == 40) {
-            return id;
-        }
         String prefix = id.substring(0, 2);
         List<String> dirs = plainFilenamesIn(COMMITS_DIR);
         for (String dir : dirs) {
             if (dir.equals(prefix)) {
                 List<String> files = plainFilenamesIn(join(COMMITS_DIR, dir));
                 for (String file : files) {
-                    if (file.startsWith(id.substring(2))) {
+                    if (file.substring(0, 6).equals(id)) {
                         return dir + file;
                     }
                 }
             }
         }
-        return null;
-    }
-    private static String getCurrentFileId(String filename) {
-        File file = join(CWD, filename);
-        if (!file.exists()) return null;
-        blob b = new blob(filename, readContents(file));
-        return b.getID();
-    }
-    public static void checkout3(String name) {
-    List<String> branchname = plainFilenamesIn(REFS_DIR);
-    if (name.equals(readContentsAsString(HEAD_FILE))) {
-        System.out.println("No need to checkout the current branch.");
-        return;
-    }
-    if (!branchname.contains(name)) {
-        System.out.println("No such branch exists.");
-        return;
-    }
-    File ref = join(REFS_DIR, name);
-    String commitId = readContentsAsString(ref);
-    checkout_reset_wronghelper(commitId);
-    checkout_commit_files(commitId);
-    rm_commit_notracked_files(commitId);
-        // ==== 新增文件清理逻辑 ====
-        // 删除当前分支存在但目标分支不存在的文件
-        Commit currentCommit = get_commit_from_branch(get_head_branch());
-        Commit branchCommit = get_commit_from_branch(name);
-
-        for (String filename : currentCommit.getblobids().keySet()) {
-            if (!branchCommit.blobids_containsKey(filename)) {
-                File file = join(CWD, filename);
-                if (file.exists()) {
-                    file.delete();
-                }
-            }
-        }
-
-        // 恢复目标分支文件
-        for (Map.Entry<String, String> entry : branchCommit.getblobids().entrySet()) {
-            String filename = entry.getKey();
-            String blobId = entry.getValue();
-            blob b = read_blob_from_id(blobId);
-            writeContents(join(CWD, filename), b.getContent());
-        }
-    head_pointer_update(name);
-    stage_update();
-}
-
+    return null;}
 
 }
 

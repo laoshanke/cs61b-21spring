@@ -50,17 +50,15 @@ public class Commit  implements Dumpable{
         parent_ids = new String[2];
         blobids = new TreeMap<String,String>();
     }
-    /** Creates a commit with a message. */
     public Commit(String message1) {
         timestamp = new Date();
         message = message1;
         parent_ids = new String[2];
-        Commit commit = get_commit_from_branch(get_head_branch());
-        parent_ids[0] = commit.get_id();
+        Commit parentCommit = get_commit_from_branch(get_head_branch());
+        parent_ids[0] = parentCommit.get_id();
 
-        // ==== 关键修改：继承父提交的全部文件 ====
-        blobids = new TreeMap<>(commit.getblobids()); // 复制父提交的blobids
-        // ===== 修改结束 =====
+        // 正确继承父commit的文件
+        blobids = new TreeMap<>(parentCommit.getblobids());
     }
 
     /**return the id of the commit*/
