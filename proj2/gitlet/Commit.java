@@ -99,17 +99,24 @@ public class Commit  implements Dumpable{
     public boolean blobids_containsKey(String Name){
         return blobids.containsKey(Name);
     }
-    public void dump(){
+    public void dump() {
         System.out.println("===");
         System.out.println("commit " + get_id());
-        if(parent_ids[1] != null){
-            System.out.println("Merge: " + parent_ids[0].substring(0,7) + " " + parent_ids[1].substring( 0,7));
+        if (parent_ids[1] != null) {
+            System.out.println("Merge: " + parent_ids[0].substring(0, 7) + " " + parent_ids[1].substring(0, 7));
         }
-        String time = String.format("Date: %1$ta %1$tb %1$te %1$tH:%1$tM:%1$tS %1$tY %1$tz", timestamp);
-        System.out.println(time);
+        // 4. 使用 Formatter 组合格式符
+        String formatted = String.format(
+                "Date: %1$ta %1$tb %1$td %1$tH:%1$tM:%1$tS %1$tY %1$tz",
+                timestamp
+        );
+
+        System.out.println(formatted);
         System.out.println(message);
         System.out.println();
     }
+
+
 
 
 

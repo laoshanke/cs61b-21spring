@@ -28,7 +28,7 @@ public class blob implements Serializable {
     public void save_add(){
         save_blob(this);
         File file = Utils.join(Repository.ADD_DIR, this.name);
-        Utils.writeObject(file, this.id);
+        Utils.writeContents(file, this.id);
     }
     @Override
     public boolean equals(Object o) {
