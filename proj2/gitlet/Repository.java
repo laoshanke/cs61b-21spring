@@ -141,7 +141,7 @@ public class Repository {
         List<String> addfiles = Utils.plainFilenamesIn(Repository.ADD_DIR);
         List<String> rmfiles = Utils.plainFilenamesIn(Repository.REMOVE_DIR);
         
-        if ((addfiles == null || addfiles.isEmpty()) && (rmfiles == null || rmfiles.isEmpty())) {
+        if ( addfiles.isEmpty() &&  rmfiles.isEmpty()) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
@@ -469,8 +469,10 @@ public class Repository {
     public static void stage_update() {
         deleteDirectory(Repository.ADD_DIR);
         deleteDirectory(Repository.REMOVE_DIR);
-        REMOVE_DIR.mkdir();
-        ADD_DIR.mkdir();
+
+        // 确保目录存在（不存在则创建）
+        REMOVE_DIR.mkdirs(); // 使用 mkdirs() 而非 mkdir()
+        ADD_DIR.mkdirs();
     }
     /**
      * 删除一个目录和它下的所有文件
@@ -480,12 +482,13 @@ public class Repository {
             File[] children = dir.listFiles();
             if (children != null) {
                 for (File child : children) {
-                    boolean success = deleteDirectory(child);
+                    boolean success = deleteDirectory(child); // 递归删除子文件/目录
                     if (!success) return false;
                 }
             }
         }
-        return true;
+        // 删除空目录或文件
+        return dir.delete(); // 关键：必须调用 delete()！
     }
     /** 返回父提交*/
     public static Commit[] get_parent_commit(Commit now_commit){

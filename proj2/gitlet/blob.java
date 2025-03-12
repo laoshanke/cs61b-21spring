@@ -28,6 +28,7 @@ public class blob implements Serializable {
     public void save_add(){
         save_blob(this);
         File file = Utils.join(Repository.ADD_DIR, this.name);
+        Repository.plus_file_create(file);
         Utils.writeContents(file, this.id);
     }
     @Override
