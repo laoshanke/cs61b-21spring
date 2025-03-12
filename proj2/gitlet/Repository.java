@@ -319,6 +319,7 @@ public class Repository {
                 System.out.println(cwd_file);
             }
         }
+        System.out.println();
     }
 
     public static void checkout_reset_wronghelper(String id) {
@@ -363,7 +364,7 @@ public class Repository {
         }
         plus_file_create(branch_file);
         writeContents(branch_file,get_commit_from_branch( get_head_branch()).get_id());
-        head_pointer_update(branch_name);
+        branch_create_update( branch_name, get_commit_from_branch( get_head_branch()));
     }
     public static void rm_branch(String branch_name){
         File branch_file = join(REFS_DIR,branch_name);
