@@ -1,5 +1,5 @@
 package gitlet;
-
+import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -13,8 +13,16 @@ public class blob implements Serializable {
     public blob(String name, byte[] content) {
         this.name = name;
         this.content = content;
-        String idtext = "blob" + name + content;
-        this.id = Utils.sha1(idtext);
+
+        // ==== 插入点1：替换原有ID生成逻辑 ====
+        // Git标准的blob ID生成方式
+        String header = "blob " + content.length + "\0";
+        byte[] headerBytes = header.getBytes(StandardCharsets.UTF_8);
+        byte[] store = new byte[headerBytes.length + content.length];
+        System.arraycopy(headerBytes, 0, store, 0, headerBytes.length);
+        System.arraycopy(content, 0, store, headerBytes.length, content.length);
+        this.id = Utils.sha1(store);
+        // ===== 插入结束 =====
     }
      public String getID() {
         return id;
