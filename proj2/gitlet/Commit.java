@@ -2,7 +2,6 @@ package gitlet;
 
 // TODO: any imports you need here
 
-import com.sun.source.tree.ReturnTree;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,8 +54,8 @@ public class Commit  implements Dumpable{
     public Commit(String message1){
         timestamp = new Date();
         message = message1;
-        parent_ids = new String[2];
-        Commit commit = get_head_branch_pointer_commit();
+        parent_ids = new String[2]; 
+        Commit commit = get_commit_from_branch( get_head_branch());
         parent_ids[0] = commit.get_id();
         blobids = new TreeMap<String,String>();
         for( String name:commit.getblobids().keySet()){
@@ -88,17 +87,17 @@ public class Commit  implements Dumpable{
         return Utils.sha1(vals);
     }
 
-    public String blobids_get( String Name_id){
-        return blobids.get(Name_id);
+    public String blobids_get( String Name){
+        return blobids.get(Name);
     }
-    public void blobids_put(String Name_id,String blob_id){
-        blobids.put(Name_id,blob_id);
+    public void blobids_put(String Name,String blob_id){
+        blobids.put(Name,blob_id);
     }
-    public void blobids_remove(String Name_id){
-        blobids.remove(Name_id);
+    public void blobids_remove(String Name){
+        blobids.remove(Name);
     }
-    public boolean blobids_containsKey(String Name_id){
-        return blobids.containsKey(Name_id);
+    public boolean blobids_containsKey(String Name){
+        return blobids.containsKey(Name);
     }
     public void dump(){
         System.out.println("===");
@@ -107,6 +106,7 @@ public class Commit  implements Dumpable{
             System.out.println("Merge: " + parent_ids[0].substring(0,7) + " " + parent_ids[1].substring( 0,7));
         }
         String time = String.format("Date: %1$ta %1$tb %1$te %1$tH:%1$tM:%1$tS %1$tY %1$tz", timestamp);
+        System.out.println(time);
         System.out.println(message);
         System.out.println();
     }

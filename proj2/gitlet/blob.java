@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
+import static gitlet.Repository.save_blob;
+
 public class blob implements Serializable {
     private byte[] content;
     private String name;
@@ -11,7 +13,8 @@ public class blob implements Serializable {
     public blob(String name, byte[] content) {
         this.name = name;
         this.content = content;
-        this.id = Utils.sha1( content);
+        String idtext = "blob" + name + content;
+        this.id = Utils.sha1(idtext);
     }
      public String getID() {
         return id;
@@ -23,21 +26,15 @@ public class blob implements Serializable {
         return content;
     }
     public void save_add(){
-        File file = Utils.join(Repository.ADD_DIR, this.id);
-        if(!file.exists()){
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        Utils.writeObject(file, this);
+        save_blob(this);
+        File file = Utils.join(Repository.ADD_DIR, this.name);
+        Utils.writeObject(file, this.id);
     }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         blob blob = (blob) o;
-        return id.equals(blob.id) && name.equals(blob.name);
+        return id.equals(blob.id)&& name.equals(blob.name);
     }
 }

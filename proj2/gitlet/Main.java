@@ -15,13 +15,20 @@ public class Main {
             System.exit(0);
         }
         String firstArg = args[0];
+        if(firstArg.getClass() != String.class){
+            System.out.println("Incorrect operands.");
+            System.exit(0);
+        }
         switch(firstArg) {
             case "init":
-                args_num_exam(args,1);
+                if(args.length != 1){
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
                 Repository.init();
                 break;
             case "add":
-                if(args.length != 2){
+                if(args.length != 2 || args[1].getClass() != String.class){
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -29,7 +36,7 @@ public class Main {
                 Repository.add(args[1]);
                 break;
             case "commit":
-                if(args.length != 2){
+                if(args.length != 2 || args[1].getClass() != String.class){
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -37,7 +44,7 @@ public class Main {
                 Repository.commit(args[1]);
                 break;
             case "rm":
-                if(args.length != 2){
+                if(args.length != 2 ||args[1].getClass() != String.class){
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -45,17 +52,23 @@ public class Main {
                 Repository.rm(args[1]);
                 break;
             case "log":
-                args_num_exam(args,1);
+                if(args.length != 1){
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
                 check_init();
                 Repository.log();
                 break;
             case "global-log":
-                args_num_exam(args,1);
+                if(args.length != 1){
+                System.out.println("Incorrect operands.");
+                System.exit(0);
+                }   
                 check_init();
                 Repository.global_log();
                 break;
             case "find":
-                if(args.length != 2){
+                if(args.length != 2 || args[1].getClass() != String.class){
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -63,7 +76,10 @@ public class Main {
                 Repository.find(args[1]);
                 break;
             case "status":
-                args_num_exam(args,1);
+                if(args.length != 1){
+                System.out.println("Incorrect operands.");
+                System.exit(0);
+                }
                 check_init();
                 Repository.status();
                 break;
@@ -115,12 +131,7 @@ public class Main {
                 System.exit(0);
         }
     }
-    public static void args_num_exam( String[] args, int num){
-        if(args.length != num){
-            System.out.println("Incorrect operands.");
-            System.exit(0);
-        }
-    }
+    
     public static void check_init(){
         if(!Repository.GITLET_DIR.exists()){
             System.out.println("Not in an initialized Gitlet directory.");
