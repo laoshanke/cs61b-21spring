@@ -356,17 +356,29 @@ public class Repository {
         }
         only_checkout_commit_files(now_commit.get_id(),name);
     }
-    public  static  void checkout2(String id, String file_name){
-        String fullid = full_id_finder(id);
-        if(read_commit_from_id(fullid) == null){
+    public static void checkout2(String id, String file_name) {
+        // 首先尝试获取完整ID
+        String fullId = full_id_finder(id);
+        if (fullId == null) {
             System.out.println("No commit with that id exists.");
             return;
         }
-        if(!read_commit_from_id(fullid).blobids_containsKey(file_name)){
+        
+        // 获取目标commit
+        Commit targetCommit = read_commit_from_id(fullId);
+        if (targetCommit == null) {
+            System.out.println("No commit with that id exists.");
+            return;
+        }
+        
+        // 检查文件是否存在
+        if (!targetCommit.blobids_containsKey(file_name)) {
             System.out.println("File does not exist in that commit.");
             return;
         }
-        only_checkout_commit_files(fullid, file_name);
+        
+        // 执行checkout
+        only_checkout_commit_files(fullId, file_name);
     }
     public static void branch(String branch_name) {
         File branch_file = join(REFS_DIR,branch_name);
@@ -430,15 +442,14 @@ public class Repository {
         }
     }
     /**从id找到commit */
-    public static Commit read_commit_from_id(String id) {
-        if (id == null || id.length() < 2) {
+    public static Commit read_commit_from_id(String id){
+        if (id == null) {
             return null;
         }
-        File commitFile = join(COMMITS_DIR, id.substring(0,2), id.substring(2));
-        if (!commitFile.exists()) {
+        if(!join(COMMITS_DIR,id.substring(0,2),id.substring(2)).exists()){
             return null;
         }
-        return readObject(commitFile, Commit.class);
+        return readObject(join(COMMITS_DIR,id.substring(0,2),id.substring(2)),Commit.class);
     }
     /**
      * 返回对应id的blob
