@@ -368,19 +368,14 @@ public class Repository {
         }
         only_checkout_commit_files(fullid, file_name);
     }
-    public static void branch( String branch_name) {
-       /**: Creates a new branch with the given name, and points it at the current head commit.
-        * A branch is nothing more than a name for a reference (a SHA-1 identifier) to a commit node.
-        * This command does NOT immediately switch to the newly created branch (just as in real Git).
-        * Before you ever call branch, your code should be running with a default branch called "master". */
+    public static void branch(String branch_name) {
         File branch_file = join(REFS_DIR,branch_name);
         if(branch_file.exists()){
             System.out.println("A branch with that name already exists.");
             System.exit(0);
         }
         plus_file_create(branch_file);
-        writeContents(branch_file,get_commit_from_branch( get_head_branch()).get_id());
-        head_pointer_update(branch_name);
+        writeContents(branch_file,get_commit_from_branch(get_head_branch()).get_id());
     }
     public static void rm_branch(String branch_name){
         File branch_file = join(REFS_DIR,branch_name);
