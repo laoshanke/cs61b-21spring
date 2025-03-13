@@ -430,11 +430,15 @@ public class Repository {
         }
     }
     /**从id找到commit */
-    public static Commit read_commit_from_id(String id){
-        if(!join(COMMITS_DIR,id.substring(0,2),id.substring(2)).exists()){
+    public static Commit read_commit_from_id(String id) {
+        if (id == null || id.length() < 2) {
             return null;
         }
-        return readObject(join(COMMITS_DIR,id.substring(0,2),id.substring(2)),Commit.class);
+        File commitFile = join(COMMITS_DIR, id.substring(0,2), id.substring(2));
+        if (!commitFile.exists()) {
+            return null;
+        }
+        return readObject(commitFile, Commit.class);
     }
     /**
      * 返回对应id的blob
