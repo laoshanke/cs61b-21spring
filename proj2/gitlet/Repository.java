@@ -52,9 +52,12 @@ public class Repository {
         Commit init = new Commit();
         init.save_commit();
         createBranch("master", init.getId());
-        head_point_commit("master");
+        head_point_branch("master");
     }
-    static void createFileplus(File file) {
+    void add(String fileName){
+
+    }
+    static void createFileplus(File file) {//超级创造文件
         if(!file.exists()){
             try {
                 file.createNewFile();
@@ -63,13 +66,26 @@ public class Repository {
             }
         }
     }
-    static void createBranch(String name, String id) {
+    static void createBranch(String name, String id) {//创造一个名字为name内容为id的分支
         File file = join(BRANCH_DIR, name);
         createFileplus(file);
         writeContents(file, id);
     }
-    static void head_point_commit(String name) {
+    static void head_point_branch(String name) {//设置头指针指着的分支
         writeContents(HEAD, name);
+    }
+    static String get_head_point_branch() {//得到头指针指着的分支
+        return readContentsAsString(HEAD);
+    }
+    static String get_branch_point_commit(String name) {//得到分支的commit的id
+        return readContentsAsString(join(BRANCH_DIR, name));}
+    static Blob fileGetBLOB(String fileName) {//得到工作区中文件的对应Blob
+        File file = join(CWD, fileName);
+        if(!file.exists()) {
+            throw Utils.error("File does not exist.");
+        }else{
+            return new Blob(file);
+        }
     }
     /* TODO: fill in the rest of this class. */
 }
