@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static gitlet.Utils.*;
@@ -33,7 +34,7 @@ public class Repository {
     public static final File COMMIT_DIR = join(MYGITLET_DIR, "commits");
     public static final File OBJECT_DIR = join(MYGITLET_DIR, "objects");
 
-    public static final File STAGING_DIR = join(MYGITLET_DIR, "staging");
+    public static final File STAGING = join(MYGITLET_DIR, "staging");
 
     public static final File BRANCH_DIR = join(MYGITLET_DIR, "branches");
 
@@ -47,13 +48,15 @@ public class Repository {
         MYGITLET_DIR.mkdir();
         OBJECT_DIR.mkdir();
         COMMIT_DIR.mkdir();
-        STAGING_DIR.mkdir();
+        createFileplus(STAGING);
         BRANCH_DIR.mkdir();
         createFileplus(HEAD);
         Commit init = new Commit();
         init.save_commit();
         writeBranch("master", init.getId());
         head_point_branch("master");
+        Addstage staging = new Addstage();
+        staging.save();
     }
     void add(String fileName){
         if(!join(CWD, fileName).exists()) {
@@ -64,10 +67,11 @@ public class Repository {
         String id2 =get_branch_point_commit(get_head_point_branch()).getBlobId(fileName);
         if(id2!=null&&id2.equals(id)){//如果文件的当前工作版本与当前提交中的版本相同，则不要将其暂存以待添加；若该文件已在暂存区中
             // ，则将其从暂存区移除（比如当一个文件先被修改、添加，然后又改回其原始版本时就会出现这种情况）。
-        File file = join(STAGING_DIR, fileName);
-        if(file.exists()){
-            file.delete();
-        }
+            Addstage stage = readObject(STAGING, Addstage.class);
+            if(stage.stage.containsKey(fileName)){
+                stage.remove(fileName);
+                stage.save();
+            }
         }else{
             blob.savestage();//将当前状态下的文件副本添加到暂存区(对已暂存的文件再次执行添加操作，会用新内容覆盖暂存区中该文件的先前记录。
         }
@@ -78,30 +82,30 @@ public class Repository {
     }
     void commit(String message){
         if(message.equals("")){
-           error("Please enter a commit message.");
+            error("Please enter a commit message.");
         }
-        List<String> list = plainFilenamesIn(STAGING_DIR);
-        if(list.size()==0&&remove.size()==0){
+        Addstage addstage = readObject(STAGING, Addstage.class);
+        if(addstage.stage.size()==0&&remove.size()==0){
             error("No changes added to the commit.");
         }
         Commit commit = new Commit(message);
-        for(String name:list){
-            blob blob = get_blob_from_stage(name);
-            join(STAGING_DIR, name).delete();
-            blob.saveObject();
-            commit.change_blobs(name, blob.getId());
+        for(String name:addstage.stage.keySet()){
+            addstage.remove(name);
+            commit.change_blobs(name, addstage.stage.get(name));
         }
         for(String name:remove){
             commit.remove_blob(name);
         }
+        addstage.save();
         commit.save_commit();
-    writeBranch( get_head_point_branch(), commit.getId());
+        writeBranch( get_head_point_branch(), commit.getId());
     }
     void rm(String fileName){
         boolean flag = false;
-        List<String> list = plainFilenamesIn(STAGING_DIR);
-        if(list.contains(fileName)){
-            join(STAGING_DIR, fileName).delete();
+        Addstage addstage = readObject(STAGING, Addstage.class);
+        if(addstage.stage.containsKey(fileName)){
+            addstage.remove(fileName);
+            addstage.save();
             flag = true;
         }
         if(get_branch_point_commit(get_head_point_branch()).getBlobId(fileName)!=null){
@@ -118,6 +122,64 @@ public class Repository {
     }
     void log(){
         get_branch_point_commit(get_head_point_branch()).log_print();
+    }
+    void global_log(){
+        List<String > dirlist = plainFilenamesIn(COMMIT_DIR);
+        for(String name:dirlist){
+            List<String> list = plainFilenamesIn(join(COMMIT_DIR, name));
+            if(list.size()!=0) {
+                for (String id : list) {
+                    Commit commit = readObject(join(COMMIT_DIR, name, id), Commit.class);
+                    commit.log_print();
+                }
+            }
+        }
+    }
+    void find(String message){
+        Boolean flag = false;
+        List<String > dirlist = plainFilenamesIn(COMMIT_DIR);
+        for(String name:dirlist){
+            List<String> list = plainFilenamesIn(join(COMMIT_DIR, name));            if(list.size()!=0) {
+                for (String id : list) {
+                    Commit commit = readObject(join(COMMIT_DIR, name, id), Commit.class);
+                    if(commit.getMessage().equals(message)){
+                        System.out.println(commit.getId());
+                        flag = true;
+                    }
+                }
+            }
+        }
+        if(!flag){
+            System.out.println("Found no commit with that message.");
+        }
+    }
+    void status(){
+        System.out.println("=== Branches ===");
+        List<String> list = plainFilenamesIn(BRANCH_DIR);
+        String head = get_head_point_branch();
+        list.remove(head);
+        System.out.println("*"+head);
+        Collections.sort(list);
+        for(String name:list){
+            System.out.println(name);
+        }
+        System.out.println();
+        System.out.println("=== Staged Files ===");
+        Addstage addstage = readObject(STAGING, Addstage.class);
+        List<String> list2 = new ArrayList<>(addstage.stage.keySet());
+        Collections.sort(list2);
+        for(String name:list2){
+            System.out.println(name);
+        }
+        System.out.println();
+        System.out.println("=== Removed Files ===");
+        Collections.sort(remove);
+        for(String name:remove){
+            System.out.println(name);
+        }
+        System.out.println();
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        List<String> list3 = new ArrayList<>();
     }
     static void createFileplus(File file) {//超级创造文件
         if(!file.exists()){
@@ -147,11 +209,9 @@ public class Repository {
         if(!file.exists()) {
             error("File does not exist.");
         }
-            return new blob(file);
+        return new blob(file);
 
     }
-    blob get_blob_from_stage(String name) {
-        return readObject(join(STAGING_DIR, name), blob.class);
-    }
+
     /* TODO: fill in the rest of this class. */
 }

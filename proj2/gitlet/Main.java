@@ -56,6 +56,25 @@ public class Main {
                 initExam();
                 repo.log();
                 break;
+            case "global-log":
+                if(args.length!=1){
+                    error("Incorrect operands.");
+                }
+                initExam();
+                repo.global_log();
+                break;
+            case "find":
+                if(args.length!=2 && args[1].getClass()!= String.class){
+                    error("Incorrect operands.");
+                }
+                initExam();
+                repo.find(args[1]);
+            case "status":
+                if(args.length!=1){
+                    error("Incorrect operands.");
+                }
+                initExam();
+                repo.status();
             default:
                 error("No command with that name exists.");
         }

@@ -33,7 +33,7 @@ public class Commit implements Serializable {
     private List<String> parent;
     private TreeMap <String, String> nametoblobs;
     private String id;
-     Commit() {
+    Commit() {
         this.message = "initial commit";
         this.timestamp = new Date(0);
         this.parent = new ArrayList<>();//注意为空不为null。不然无法被hash
@@ -73,6 +73,9 @@ public class Commit implements Serializable {
     String getparent2() {
         return parent.get(1);
     }
+    String getMessage() {
+        return message;
+    }
     String getBlobId(String name) {
         return nametoblobs.get(name);
     }
@@ -84,29 +87,29 @@ public class Commit implements Serializable {
         return dateFormat.format(date);
     }
     void log_print(){
-         if(parent.size()==2){
-             System.out.println("===");
-             System.out.println("commit " + getId());
-             System.out.println("merge " + getparent1().substring(0,7) + " " + getparent2().substring(0,7));
-             System.out.println("Date: " + dateToTimeStamp(timestamp));
-             System.out.println(message);
-             System.out.println();
-         }else{
-             System.out.println("===");
-             System.out.println("commit " + getId());
-             System.out.println("Date: " + dateToTimeStamp(timestamp));
-             System.out.println(message);
-             System.out.println();
-             if(parent.size()==0) {
-                 Commit parent1 = get_branch_point_commit(get_head_point_branch());
-                 parent1.log_print();
+        if(parent.size()==2){
+            System.out.println("===");
+            System.out.println("commit " + getId());
+            System.out.println("merge " + getparent1().substring(0,7) + " " + getparent2().substring(0,7));
+            System.out.println("Date: " + dateToTimeStamp(timestamp));
+            System.out.println(message);
+            System.out.println();
+        }else{
+            System.out.println("===");
+            System.out.println("commit " + getId());
+            System.out.println("Date: " + dateToTimeStamp(timestamp));
+            System.out.println(message);
+            System.out.println();
+            if(parent.size()==0) {
+                Commit parent1 = get_branch_point_commit(get_head_point_branch());
+                parent1.log_print();
 
-             }
-         }
+            }
+        }
 
     }
     /**
      * TODO: fill in the constructor here.
 
-    /* TODO: fill in the rest of this class. */
+     /* TODO: fill in the rest of this class. */
 }
