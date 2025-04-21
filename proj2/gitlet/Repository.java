@@ -41,7 +41,7 @@ public class Repository {
     public List<String> remove = new ArrayList<>();
     void init() {
         if (GITLET_DIR.exists()) {
-            throw Utils.error("A Gitlet version-control system already exists in the current directory.");
+            error("A Gitlet version-control system already exists in the current directory.");
         }
         GITLET_DIR.mkdir();
         MYGITLET_DIR.mkdir();
@@ -57,7 +57,7 @@ public class Repository {
     }
     void add(String fileName){
         if(!join(CWD, fileName).exists()) {
-            throw Utils.error("File does not exist.");
+            error("File does not exist.");
         }
         blob blob = fileGetBLOB(fileName);
         String id = blob.getId();
@@ -78,11 +78,11 @@ public class Repository {
     }
     void commit(String message){
         if(message.equals("")){
-            throw Utils.error("Please enter a commit message.");
+           error("Please enter a commit message.");
         }
         List<String> list = plainFilenamesIn(STAGING_DIR);
         if(list.size()==0&&remove.size()==0){
-            throw Utils.error("No changes added to the commit.");
+            error("No changes added to the commit.");
         }
         Commit commit = new Commit(message);
         for(String name:list){
@@ -113,7 +113,7 @@ public class Repository {
             }
         }
         if(!flag){
-            throw Utils.error("No reason to remove the file.");
+            error("No reason to remove the untracked file.");
         }
     }
     void log(){
@@ -124,7 +124,7 @@ public class Repository {
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                throw Utils.error("crate file error");
+                error( "createFileplus error");
             }
         }
     }
@@ -145,10 +145,10 @@ public class Repository {
     static blob fileGetBLOB(String fileName) {//得到工作区中文件的对应Blob
         File file = join(CWD, fileName);
         if(!file.exists()) {
-            throw Utils.error("File does not exist.");
-        }else{
-            return new blob(file);
+            error("File does not exist.");
         }
+            return new blob(file);
+
     }
     blob get_blob_from_stage(String name) {
         return readObject(join(STAGING_DIR, name), blob.class);

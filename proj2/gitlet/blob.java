@@ -11,7 +11,7 @@ String name;
 byte[] content;
 String id;
 public blob(File file){
-byte[] content = Utils.readContents(file);
+    content = Utils.readContents(file);
 name = file.getName();
 id = getId();
 }
