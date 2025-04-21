@@ -32,20 +32,37 @@ public class Commit implements Serializable {
     private Date timestamp;
     private List<String> parent;
     private TreeMap <String, String> nametoblobs;
-    void Commit() {
+    private String id;
+     Commit() {
         this.message = "initial commit";
         this.timestamp = new Date(0);
         this.parent = new ArrayList<>();//注意为空不为null。不然无法被hash
         this.nametoblobs = new TreeMap<>();
+        this.id = getId();
+    }
+    Commit( String message){
+        this.message = message;
+        this.timestamp = new Date();
+        this.parent = new ArrayList<>();
+        Commit parent1 = get_branch_point_commit(get_head_point_branch());
+        parent.add(parent1.getId());
+        this.nametoblobs = parent1.getnametoblobs();
+        this.id = getId();
     }
     void save_commit() {
         String id = getId();
-        File dir = join(OBJECT_DIR, id.substring(0,2));
+        File dir = join(COMMIT_DIR, id.substring(0,2));
         if(!dir.exists()) {
             dir.mkdir();
         }
-        createFileplus(join(OBJECT_DIR, id.substring(0,2), id.substring(2,40)));
-        writeObject(join(OBJECT_DIR, id.substring(0,2), id.substring(2,40)), this);
+        createFileplus(join(COMMIT_DIR, id.substring(0,2), id.substring(2,40)));
+        writeObject(join(COMMIT_DIR, id.substring(0,2), id.substring(2,40)), this);
+    }
+    void change_blobs(String name, String id) {
+        nametoblobs.put(name, id);
+    }
+    void remove_blob(String name) {
+        nametoblobs.remove(name);
     }
     String getId(){
         return sha1(this.message, dateToTimeStamp(this.timestamp), this.parent.toString(), this.nametoblobs.toString());
@@ -56,12 +73,37 @@ public class Commit implements Serializable {
     String getparent2() {
         return parent.get(1);
     }
-    String getBlobIId(String name) {
+    String getBlobId(String name) {
         return nametoblobs.get(name);
+    }
+    TreeMap <String, String> getnametoblobs() {
+        return nametoblobs;
     }
     private static String dateToTimeStamp(Date date) {//把不标准的时间格式转化为标准的时间格式，而且作为字符串格式可以被hash
         DateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.US);
         return dateFormat.format(date);
+    }
+    void log_print(){
+         if(parent.size()==2){
+             System.out.println("===");
+             System.out.println("commit " + getId());
+             System.out.println("merge " + getparent1().substring(0,7) + " " + getparent2().substring(0,7));
+             System.out.println("Date: " + dateToTimeStamp(timestamp));
+             System.out.println(message);
+             System.out.println();
+         }else{
+             System.out.println("===");
+             System.out.println("commit " + getId());
+             System.out.println("Date: " + dateToTimeStamp(timestamp));
+             System.out.println(message);
+             System.out.println();
+             if(parent.size()==0) {
+                 Commit parent1 = get_branch_point_commit(get_head_point_branch());
+                 parent1.log_print();
+
+             }
+         }
+
     }
     /**
      * TODO: fill in the constructor here.

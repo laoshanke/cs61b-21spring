@@ -31,14 +31,42 @@ public class Main {
                 repo.init();
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
+                if(args.length != 1 && args[1].getClass()!= String.class) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                initExam();
+                repo.add(args[1]);
                 break;
-            // TODO: FILL THE REST IN
+            case "commit":
+                if(args.length!=2 && args[1].getClass()!= String.class){
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                initExam();
+                repo.commit( args[1]);
+                break;
+            case "rm":
+                if(args.length!=2 && args[1].getClass()!= String.class){
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                initExam();
+                repo.rm(args[1]);
+                break;
+            case "log":
+                if(args.length!=1){
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                initExam();
+                repo.log();
+                break;
             default:
                 System.out.println("No command with that name exists.");
         }
     }
-    void initExam(){
+    static void initExam(){
         if (!GITLET_DIR.exists()) {
             System.out.println("Not in an initialized Gitlet directory.");
             System.exit(0);

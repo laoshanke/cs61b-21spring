@@ -9,12 +9,13 @@ import static gitlet.Utils.join;
 public class Blob implements Serializable {
 String name;
 byte[] content;
+String id;
 public Blob(File file){
 byte[] content = Utils.readContents(file);
 name = file.getName();
+id = getId();
 }
 void saveObject(){//把一个blob对象保存到对象文件夹中
-    String id = getId();
     File dir = join(Repository.OBJECT_DIR, id.substring(0,2));
     if(!dir.exists()){
         dir.mkdir();
@@ -26,8 +27,8 @@ void savestage(){//把一个blob对象保存到暂存区文件夹中
     File file = join(Repository.STAGING_DIR, name);
     if(!file.exists()){
         createFileplus(file);
-        Utils.writeObject(file, this);
     }
+    Utils.writeObject(file, this);
 }
 String getId(){
     return Utils.sha1(name, content);
