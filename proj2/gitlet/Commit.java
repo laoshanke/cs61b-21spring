@@ -2,14 +2,14 @@ package gitlet;
 
 // TODO: any imports you need here
 
-
 import java.io.File;
-import java.io.IOException;
-import java.util.*;
+import java.util.Date; // TODO: You'll likely use this in this class
+import java.util.TreeMap;
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.join;
-import static gitlet.Utils.readContentsAsString;
+import static gitlet.Utils.sha1;
+import static java.nio.file.Files.createFile;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -17,7 +17,7 @@ import static gitlet.Utils.readContentsAsString;
  *
  *  @author TODO
  */
-public class Commit  implements Dumpable{
+public class Commit {
     /**
      * TODO: add instance variables here.
      *
@@ -25,98 +25,40 @@ public class Commit  implements Dumpable{
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided one example for `message`.
      */
-    /** The timestamp of this Commit. */
-    private Date timestamp;
+
     /** The message of this Commit. */
     private String message;
-    /** The parent id of this Commit. */
-    private String[] parent_ids;
-    /** The tracked blob  of this Commit. */
-    private TreeMap<String,String> blobids;
-    public String getMessage() {
-        return message;
+    private Date timestamp;
+    private String parent;
+    private String secondParent;
+    private TreeMap <String, String> nametoblobs;
+    void Commit() {
+        this.message = "initial commit";
+        this.timestamp = new Date(0);
     }
-    public String[] getParent_ids() {
-        return parent_ids;
-    }
-    public TreeMap<String,String> getblobids() {
-        return blobids;
-    }
-
-    /** Creates a default commit  */
-    public Commit(){
-        timestamp = new Date(0);
-        message = "initial commit";
-        parent_ids = new String[2];
-        blobids = new TreeMap<String,String>();
-    }
-    public Commit(String message1) {
-        timestamp = new Date();
-        message = message1;
-        parent_ids = new String[2];
-        Commit parentCommit = get_commit_from_branch(get_head_branch());
-        parent_ids[0] = parentCommit.get_id();
-
-        // 正确继承父commit的文件
-        blobids = new TreeMap<>(parentCommit.getblobids());
-    }
-
-    /**return the id of the commit*/
-    public String get_id(){
-        List<Object> vals = new ArrayList<>();
-        // 添加时间戳
-        vals.add(timestamp.toString());
-        // 添加提交信息
-        vals.add(message);
-        // 添加父提交ID（非空）
-        for (String parentId : parent_ids) {
-            if (parentId != null) {
-                vals.add(parentId);
-            }
+    void save_commit() {
+        String id = getId();
+        File dir = join(OBJECT_DIR, id.substring(0,2));
+        if(!dir.exists()) {
+            dir.mkdir();
         }
-        // 添加按文件名排序的blob条目
-        List<String> sortedFiles = new ArrayList<>(blobids.keySet());
-        Collections.sort(sortedFiles);
-        for (String file : sortedFiles) {
-            vals.add(file);
-            vals.add(blobids.get(file));
-        }
-        // 生成SHA-1哈希
-        return Utils.sha1(vals);
-    }
+        createFileplus(join(OBJECT_DIR, id.substring(0,2), id.substring(2,40)));
 
-    public String blobids_get( String Name){
-        return blobids.get(Name);
     }
-    public void blobids_put(String Name,String blob_id){
-        blobids.put(Name,blob_id);
+    String getId(){
+        return sha1(this.message, this.timestamp, this.parent, this.secondParent, this.nametoblobs);
     }
-    public void blobids_remove(String Name){
-        blobids.remove(Name);
+    void dump() {
+
     }
-    public boolean blobids_containsKey(String Name){
-        return blobids.containsKey(Name);
+    String getparent1() {
+        return parent;
     }
-    public void dump() {
-        System.out.println("===");
-        System.out.println("commit " + get_id());
-        if (parent_ids[1] != null) {
-            System.out.println("Merge: " + parent_ids[0].substring(0, 7) + " " + parent_ids[1].substring(0, 7));
-        }
-        // 4. 使用 Formatter 组合格式符
-        String formatted = String.format(
-                "Date: %1$ta %1$tb %1$td %1$tH:%1$tM:%1$tS %1$tY %1$tz",
-                timestamp
-        );
-
-        System.out.println(formatted);
-        System.out.println(message);
-        System.out.println();
+    String getParent2() {
+        return secondParent;
     }
-
-
-
-
+    /**
+     * TODO: fill in the constructor here.
 
     /* TODO: fill in the rest of this class. */
 }
