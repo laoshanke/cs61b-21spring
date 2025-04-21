@@ -59,7 +59,7 @@ public class Repository {
         if(!join(CWD, fileName).exists()) {
             throw Utils.error("File does not exist.");
         }
-        Blob blob = fileGetBLOB(fileName);
+        blob blob = fileGetBLOB(fileName);
         String id = blob.getId();
         String id2 =get_branch_point_commit(get_head_point_branch()).getBlobId(fileName);
         if(id2!=null&&id2.equals(id)){//如果文件的当前工作版本与当前提交中的版本相同，则不要将其暂存以待添加；若该文件已在暂存区中
@@ -86,7 +86,7 @@ public class Repository {
         }
         Commit commit = new Commit(message);
         for(String name:list){
-            Blob blob = get_blob_from_stage(name);
+            blob blob = get_blob_from_stage(name);
             join(STAGING_DIR, name).delete();
             blob.saveObject();
             commit.change_blobs(name, blob.getId());
@@ -142,16 +142,16 @@ public class Repository {
     static Commit get_branch_point_commit(String name) {//得到分支的commit
         String id = readContentsAsString(join(BRANCH_DIR, name));
         return readObject(join(COMMIT_DIR, id.substring(0,2), id.substring(2,40)), Commit.class);}
-    static Blob fileGetBLOB(String fileName) {//得到工作区中文件的对应Blob
+    static blob fileGetBLOB(String fileName) {//得到工作区中文件的对应Blob
         File file = join(CWD, fileName);
         if(!file.exists()) {
             throw Utils.error("File does not exist.");
         }else{
-            return new Blob(file);
+            return new blob(file);
         }
     }
-    Blob get_blob_from_stage(String name) {
-        return readObject(join(STAGING_DIR, name), Blob.class);
+    blob get_blob_from_stage(String name) {
+        return readObject(join(STAGING_DIR, name), blob.class);
     }
     /* TODO: fill in the rest of this class. */
 }
