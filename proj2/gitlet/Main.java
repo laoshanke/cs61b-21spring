@@ -21,13 +21,13 @@ public class Main {
             System.exit(0);
         }
         String firstArg = args[0];
+        Repository repo = new Repository();
         switch(firstArg) {
             case "init":
                 if(args.length != 1) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-                Repository repo = new Repository();
                 repo.init();
                 break;
             case "add":

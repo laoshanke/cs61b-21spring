@@ -43,6 +43,7 @@ public class Repository {
             throw Utils.error("A Gitlet version-control system already exists in the current directory.");
         }
         GITLET_DIR.mkdir();
+        MYGITLET_DIR.mkdir();
         OBJECT_DIR.mkdir();
         STAGING_DIR.mkdir();
         BRANCH_DIR.mkdir();
