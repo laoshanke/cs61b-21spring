@@ -42,7 +42,8 @@ public class Repository {
     public List<String> remove = new ArrayList<>();
     void init() {
         if (GITLET_DIR.exists()) {
-            error("A Gitlet version-control system already exists in the current directory.");
+            System.out.println("A Gitlet version-control system already exists in the current directory.");
+            System.exit(0);
         }
         GITLET_DIR.mkdir();
         MYGITLET_DIR.mkdir();
@@ -60,7 +61,8 @@ public class Repository {
     }
     void add(String fileName){
         if(!join(CWD, fileName).exists()) {
-            error("File does not exist.");
+            System.out.println("File does not exist.");
+            System.exit(0);
         }
         blob blob = fileGetBLOB(fileName);
         String id = blob.getId();
@@ -82,11 +84,13 @@ public class Repository {
     }
     void commit(String message){
         if(message.equals("")){
-            error("Please enter a commit message.");
+            System.out.println("Please enter a commit message.");
+            System.exit(0);
         }
         Addstage addstage = readObject(STAGING, Addstage.class);
         if(addstage.stage.size()==0&&remove.size()==0){
-            error("No changes added to the commit.");
+            System.out.println("No changes added to the commit.");
+            System.exit(0);
         }
         Commit commit = new Commit(message);
         for(String name:addstage.stage.keySet()){
@@ -117,7 +121,8 @@ public class Repository {
             }
         }
         if(!flag){
-            error("No reason to remove the untracked file.");
+            System.out.println("No reason to remove the file.");
+            System.exit(0);
         }
     }
     void log(){
@@ -151,6 +156,7 @@ public class Repository {
         }
         if(!flag){
             System.out.println("Found no commit with that message.");
+            System.exit(0);
         }
     }
     void status(){
@@ -178,15 +184,14 @@ public class Repository {
             System.out.println(name);
         }
         System.out.println();
-        System.out.println("=== Modifications Not Staged For Commit ===");
-        List<String> list3 = new ArrayList<>();
     }
     static void createFileplus(File file) {//超级创造文件
         if(!file.exists()){
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                error( "createFileplus error");
+                System.out.println("file create error");
+                System.exit(0);
             }
         }
     }
@@ -207,7 +212,8 @@ public class Repository {
     static blob fileGetBLOB(String fileName) {//得到工作区中文件的对应Blob
         File file = join(CWD, fileName);
         if(!file.exists()) {
-            error("File does not exist.");
+            System.out.println("File does not exist.");
+            System.exit(0);
         }
         return new blob(file);
 
