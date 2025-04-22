@@ -100,7 +100,7 @@ public class Commit implements Serializable {
             System.out.println("Date: " + dateToTimeStamp(timestamp));
             System.out.println(message);
             System.out.println();
-            if(parent.size()==0) {
+            if(parent.size()!=0) {
                 Commit parent1 = get_branch_point_commit(get_head_point_branch());
                 parent1.log_print();
 

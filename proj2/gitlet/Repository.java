@@ -2,9 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static gitlet.Utils.*;
 
@@ -93,11 +91,13 @@ public class Repository {
             System.exit(0);
         }
         Commit commit = new Commit(message);
-        for(String name:addstage.stage.keySet()){
+        Set<String> set = deepcopy(addstage.stage.keySet());
+        for(String name:set){
             addstage.remove(name);
             commit.change_blobs(name, addstage.stage.get(name));
         }
-        for(String name:remove){
+        Set<String> set2 = deepcopy((Set<String>) remove);
+        for(String name:set2){
             commit.remove_blob(name);
         }
         addstage.save();
@@ -107,7 +107,8 @@ public class Repository {
     void rm(String fileName){
         boolean flag = false;
         Addstage addstage = readObject(STAGING, Addstage.class);
-        if(addstage.stage.containsKey(fileName)){
+        TreeMap<String, String> map =deepcopy(addstage.stage);
+        if(map.containsKey(fileName)){
             addstage.remove(fileName);
             addstage.save();
             flag = true;
@@ -163,11 +164,13 @@ public class Repository {
         System.out.println("=== Branches ===");
         List<String> list = plainFilenamesIn(BRANCH_DIR);
         String head = get_head_point_branch();
-        list.remove(head);
+
         System.out.println("*"+head);
         Collections.sort(list);
         for(String name:list){
-            System.out.println(name);
+            if(!name.equals(head)){
+                System.out.println(name);
+            }
         }
         System.out.println();
         System.out.println("=== Staged Files ===");
@@ -218,6 +221,19 @@ public class Repository {
         return new blob(file);
 
     }
-
+    Set<String> deepcopy(Set<String> set) {
+        Set<String> newset = new HashSet<>();
+        for(String name:set){
+            newset.add(name);
+        }
+        return newset;
+    }
+    TreeMap<String, String> deepcopy(TreeMap<String, String> map) {
+        TreeMap<String, String> newmap = new TreeMap<>();
+        for(String name:map.keySet()){
+            newmap.put(name, map.get(name));
+        }
+        return newmap;
+    }
     /* TODO: fill in the rest of this class. */
 }
