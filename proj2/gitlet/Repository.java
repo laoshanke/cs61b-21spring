@@ -96,7 +96,7 @@ public class Repository {
             addstage.remove(name);
             commit.change_blobs(name, addstage.stage.get(name));
         }
-        Set<String> set2 = deepcopy((Set<String>) remove);
+        List<String> set2 = deepcopy(remove);
         for(String name:set2){
             commit.remove_blob(name);
         }
@@ -234,6 +234,13 @@ public class Repository {
             newmap.put(name, map.get(name));
         }
         return newmap;
+    }
+    List<String> deepcopy(List<String> list) {
+        List<String> newlist = new ArrayList<>();
+        for(String name:list){
+            newlist.add(name);
+        }
+        return newlist;
     }
     /* TODO: fill in the rest of this class. */
 }
