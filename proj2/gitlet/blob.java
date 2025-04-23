@@ -19,7 +19,7 @@ public class blob implements Serializable {
         return name;
     }
     byte[] getContent(){
-        return
+        return content;
     }
     void saveObject(){//把一个blob对象保存到对象文件夹中
         File dir = join(Repository.OBJECT_DIR, id.substring(0,2));

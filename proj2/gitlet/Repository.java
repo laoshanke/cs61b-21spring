@@ -237,8 +237,9 @@ public class Repository {
     void checkout1(String name) {//把头commit中的name文件复制到工作区
         checkout2( get_branch_point_commit(get_head_point_branch()).getId(), name);
     }
-    void checkout2(String id, String fileName) {
+    void checkout2(String shortid, String fileName) {//支持缩写Id
         //把id对应的commit中的文件复制到工作区
+        String id = find_long_sha1id(shortid);
         File dir = join(COMMIT_DIR, id.substring(0,2));
         File file = join(dir, id.substring(2,40));
         if(!dir.exists()||!file.exists()){
@@ -264,9 +265,40 @@ public class Repository {
             System.out.println("No need to checkout the current branch.");
             System.exit(0);
         }
+        checkout_commit(get_branch_point_commit(name).getId());
+        head_point_branch(name);
+    }
+    void branch(String name) {//创建一个分支并指向当前头提交
+        Commit commit = get_branch_point_commit(get_head_point_branch());
+        String id = commit.getId();
+        File file = join(BRANCH_DIR, name);
+        if(file.exists()){
+            System.out.println("A branch with that name already exists.");
+            System.exit(0);
+        }
+        writeBranch(name, id);
+    }
+    void rm_branch(String name) {//删除一个分支
+        File file = join(BRANCH_DIR, name);
+        if(!plainFilenamesIn(BRANCH_DIR).contains(name)){
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        if(get_head_point_branch().equals(name)){
+            System.out.println("Cannot remove the current branch.");
+            System.exit(0);
+        }
+        file.delete();
+    }
+    void reset(String id) {//将当前分支指向id对应的提交
+        String id1 = find_long_sha1id(id);
+        checkout_commit(id1);
+        writeBranch(get_head_point_branch(), id1);
+    }
+    void checkout_commit(String id) {
         List<String> list = plainFilenamesIn(CWD);
         Commit nowcommit = get_branch_point_commit(get_head_point_branch());
-        Commit commit = get_branch_point_commit(name);
+        Commit commit = readObject(join(COMMIT_DIR, id.substring(0,2), id.substring(2,40)), Commit.class);
         for(String name2:list){
             if(nowcommit.contains_name(name2)&&!commit.contains_name(name2)){
                 join(CWD, name2).delete();
@@ -280,18 +312,25 @@ public class Repository {
         for(String name2:set) {
             checkout2(commit.getId(), name2);
         }
-        head_point_branch(name);
         addstage_clear();
     }
-    void branch(String name) {//创建一个分支并指向当前头提交
-        Commit commit = get_branch_point_commit(get_head_point_branch());
-        String id = commit.getId();
-        File file = join(BRANCH_DIR, name);
-        if(file.exists()){
-            System.out.println("A branch with that name already exists.");
-            System.exit(0);
+    static String find_long_sha1id(String message){//从作为唯一对应前缀的短的id找到完整commit版本的id
+        File dir = join(COMMIT_DIR, message.substring(0,2));
+        List<String> list = plainFilenamesIn(dir);
+        for(String id:list){
+            if(same_pre(message, id)){
+                return message;
+            }
         }
-        writeBranch(name, id);
+        return null;
+    }
+    static boolean same_pre(String id1, String id2) {//返回两个id相同的前缀长度
+        for(int i=0;i<id1.length();i++){
+            if(id1.charAt(i)!=id2.charAt(i)){
+                return false;
+            }
+        }
+        return true;
     }
     static void createFileplus(File file) {//超级创造文件
         if(!file.exists()){
