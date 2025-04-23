@@ -8,7 +8,7 @@ import static gitlet.Repository.STAGING;
 import static gitlet.Utils.writeObject;
 
 public class Addstage implements Serializable {
-    TreeMap<String, String> stage;
+    private TreeMap<String, String> stage;
     public Addstage() {
         stage = new TreeMap<>();
     }
@@ -20,5 +20,8 @@ public class Addstage implements Serializable {
     }
     public void save() {
             writeObject(STAGING, this);
+    }
+    public TreeMap<String, String> getstage() {
+        return stage;
     }
 }

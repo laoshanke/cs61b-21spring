@@ -78,6 +78,7 @@ public class Main {
                 }
                 initExam();
                 repo.find(args[1]);
+                break;
             case "status":
                 if(args.length!=1){
                     System.out.println("Incorrect operands.");
@@ -85,6 +86,29 @@ public class Main {
                 }
                 initExam();
                 repo.status();
+                break;
+            case "checkout":
+                if(args.length==2 && args[1].getClass()== String.class){
+                    initExam();
+                    repo.checkout3(args[1]);
+                } else if(args.length==3 && args[1].equals("--")&& args[2].getClass()== String.class){
+                    initExam();
+                    repo.checkout1(args[2]);
+                } else if ( args.length==4 && args[1].getClass()== String.class&& args[2].equals("--")&& args[3].getClass()== String.class){
+                    initExam();
+                    repo.checkout2(args[1], args[3]);
+                }else {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                break;
+            case "branch":
+                if(args.length!=2 && args[1].getClass()== String.class){
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                initExam();
+                repo.branch(args[1]);
                 break;
             default:
                 System.out.println("No command with that name exists.");

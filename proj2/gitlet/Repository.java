@@ -68,7 +68,7 @@ public class Repository {
         if(id2!=null&&id2.equals(id)){//如果文件的当前工作版本与当前提交中的版本相同，则不要将其暂存以待添加；若该文件已在暂存区中
             // ，则将其从暂存区移除（比如当一个文件先被修改、添加，然后又改回其原始版本时就会出现这种情况）。
             Addstage stage = readObject(STAGING, Addstage.class);
-            if(stage.stage.containsKey(fileName)){
+            if(stage.getstage().containsKey(fileName)){
                 stage.remove(fileName);
                 stage.save();
             }
@@ -86,14 +86,14 @@ public class Repository {
             System.exit(0);
         }
         Addstage addstage = readObject(STAGING, Addstage.class);
-        if(addstage.stage.size()==0&&remove.size()==0){
+        if(addstage.getstage().size()==0&&remove.size()==0){
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
         Commit commit = new Commit(message);
-        Set<String> set = deepcopy(addstage.stage.keySet());
+        Set<String> set = deepcopy(addstage.getstage().keySet());
         for(String name:set){
-            commit.change_blobs(name, addstage.stage.get(name));//注意这两条指令的先后顺序
+            commit.change_blobs(name, addstage.getstage().get(name));//注意这两条指令的先后顺序
             addstage.remove(name);
         }
         List<String> set2 = deepcopy(remove);
@@ -108,12 +108,12 @@ public class Repository {
     void rm(String fileName){
         boolean flag = false;
         Addstage addstage = readObject(STAGING, Addstage.class);
-        if(addstage.stage.containsKey(fileName)){
+        if(addstage.getstage().containsKey(fileName)){
             addstage.remove(fileName);
             addstage.save();
             flag = true;
         }
-        if(get_branch_point_commit(get_head_point_branch()).getBlobId(fileName)!=null){
+        if(get_branch_point_commit(get_head_point_branch()).contains_name(fileName)){
             remove.add(fileName);
             flag = true;
             File file = join(CWD, fileName);
@@ -176,7 +176,7 @@ public class Repository {
         System.out.println();
         System.out.println("=== Staged Files ===");
         Addstage addstage = readObject(STAGING, Addstage.class);
-        List<String> list2 = new ArrayList<>(addstage.stage.keySet());
+        List<String> list2 = new ArrayList<>(addstage.getstage().keySet());
         Collections.sort(list2);
         for(String name:list2){
             System.out.println(name);
@@ -189,9 +189,109 @@ public class Repository {
         }
         System.out.println();
         System.out.println("=== Modifications Not Staged For Commit ===");
+        List<String> list3 = plainFilenamesIn(CWD);
+        List<String> list4 = new ArrayList<>();
+        for (String name : list3) {
+            if(check_file_in_nowcommit(name)&&!addstage.getstage().containsKey(name)&&!fileGetBLOB(name).getId().equals(get_branch_point_commit(get_head_point_branch()).getBlobId(name))){
+            String id = name+ " (modified)";
+            list4.add(id);
+            }
+            if(addstage.getstage().containsKey(name)&&!fileGetBLOB(name).getId().equals(addstage.getstage().get(name))){
+                String id = name+ " (modified)";
+                list4.add(id);
+            }
+
+        }
+        Set<String> set = addstage.getstage().keySet();
+        for(String name:set){
+            if(!list3.contains(name)){
+                String id = name+ " (deleted)";
+                list4.add(id);
+            }
+        }
+        Set<String> list5 = get_branch_point_commit(get_head_point_branch()).getnametoblobs().keySet();
+        for(String name:list5){
+            if(!list3.contains(name)&&!remove.contains(name)){
+                String id = name+ " (deleted)";
+                list4.add(id);
+            }
+        }
+        Collections.sort(list4);
+        for(String name:list4){
+            System.out.println(name);
+        }
         System.out.println();
         System.out.println("=== Untracked Files ===");
+        List<String> list6 = new ArrayList<>();
+        for(String name:list3){
+            if(!check_file_in_nowcommit(name)&&!addstage.getstage().containsKey(name)){
+                list6.add(name);
+            }
+            if(remove.contains(name)){
+                list6.add(name);
+            }
+        }
+        Collections.sort(list6);
         System.out.println();
+    }
+    void checkout1(String name) {//把头commit中的name文件复制到工作区
+        checkout2( get_branch_point_commit(get_head_point_branch()).getId(), name);
+    }
+    void checkout2(String id, String fileName) {
+        //把id对应的commit中的文件复制到工作区
+        File dir = join(COMMIT_DIR, id.substring(0,2));
+        File file = join(dir, id.substring(2,40));
+        if(!dir.exists()||!file.exists()){
+            System.out.println(" No commit with that id exists.");
+            System.exit(0);
+        }
+        Commit pointcommit = readObject(join(COMMIT_DIR, id.substring(0,2), id.substring(2,40)), Commit.class);
+        if(!pointcommit.contains_name(fileName)){
+            System.out.println("File does not exist in that commit.");
+            System.exit(0);
+        }
+        String id2 = pointcommit.getBlobId(fileName);
+        blob blob = readObject(join(OBJECT_DIR, id2.substring(0,2), id2.substring(2,40)), blob.class);
+        createFileplus(join(CWD, fileName));
+        writeContents(join(CWD, fileName), blob.getContent());
+    }
+    void checkout3(String name) {//把分支name中的文件复制到工作区
+        if(!plainFilenamesIn(BRANCH_DIR).contains(name)){
+            System.out.println("No such branch exists.");
+            System.exit(0);
+        }
+        if(get_head_point_branch().equals(name)){
+            System.out.println("No need to checkout the current branch.");
+            System.exit(0);
+        }
+        List<String> list = plainFilenamesIn(CWD);
+        Commit nowcommit = get_branch_point_commit(get_head_point_branch());
+        Commit commit = get_branch_point_commit(name);
+        for(String name2:list){
+            if(nowcommit.contains_name(name2)&&!commit.contains_name(name2)){
+                join(CWD, name2).delete();
+            }
+            if(!nowcommit.contains_name(name2)&&commit.contains_name(name2)){
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
+        Set<String> set = commit.getnametoblobs().keySet();
+        for(String name2:set) {
+            checkout2(commit.getId(), name2);
+        }
+        head_point_branch(name);
+        addstage_clear();
+    }
+    void branch(String name) {//创建一个分支并指向当前头提交
+        Commit commit = get_branch_point_commit(get_head_point_branch());
+        String id = commit.getId();
+        File file = join(BRANCH_DIR, name);
+        if(file.exists()){
+            System.out.println("A branch with that name already exists.");
+            System.exit(0);
+        }
+        writeBranch(name, id);
     }
     static void createFileplus(File file) {//超级创造文件
         if(!file.exists()){
@@ -203,6 +303,7 @@ public class Repository {
             }
         }
     }
+
     static void writeBranch(String name, String id) {//创造一个名字为name内容为id的分支
         File file = join(BRANCH_DIR, name);
         createFileplus(file);
@@ -233,12 +334,9 @@ public class Repository {
         }
         return newset;
     }
-    TreeMap<String, String> deepcopy(TreeMap<String, String> map) {
-        TreeMap<String, String> newmap = new TreeMap<>();
-        for(String name:map.keySet()){
-            newmap.put(name, map.get(name));
-        }
-        return newmap;
+    static void addstage_clear() {//清空暂存区
+        Addstage stage = new Addstage();
+        stage.save();
     }
     List<String> deepcopy(List<String> list) {
         List<String> newlist = new ArrayList<>();
@@ -247,7 +345,7 @@ public class Repository {
         }
         return newlist;
     }
-    public static List<String> getSubdirectoryNames(File dir) {
+    public static List<String> getSubdirectoryNames(File dir) {//获取子目录名列表
         List<String> dirNames = new ArrayList<>();
         if (!dir.exists() || !dir.isDirectory()) {
             return dirNames; // 无效目录返回空列表
@@ -262,6 +360,11 @@ public class Repository {
             }
         }
         return dirNames;
+    }
+
+    boolean check_file_in_nowcommit(String fileName) {//判断当前commit中是否有这个文件
+        Commit nowcommit = get_branch_point_commit(get_head_point_branch());
+        return nowcommit.contains_name(fileName);
     }
     /* TODO: fill in the rest of this class. */
 }

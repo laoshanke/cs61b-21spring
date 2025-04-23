@@ -7,13 +7,19 @@ import static gitlet.Repository.createFileplus;
 import static gitlet.Utils.join;
 
 public class blob implements Serializable {
-    String name;
-    byte[] content;
-    String id;
+   private String name;
+    private byte[] content;
+    private String id;
     public blob(File file){
         content = Utils.readContents(file);
         name = file.getName();
         id = getId();
+    }
+    String getName(){
+        return name;
+    }
+    byte[] getContent(){
+        return
     }
     void saveObject(){//把一个blob对象保存到对象文件夹中
         File dir = join(Repository.OBJECT_DIR, id.substring(0,2));

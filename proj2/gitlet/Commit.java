@@ -79,6 +79,9 @@ public class Commit implements Serializable {
     String getBlobId(String name) {
         return nametoblobs.get(name);
     }
+    Boolean contains_name(String name) {
+        return nametoblobs.containsKey(name);
+    }
     TreeMap <String, String> getnametoblobs() {
         return nametoblobs;
     }
