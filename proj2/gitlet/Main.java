@@ -126,6 +126,13 @@ public class Main {
                 initExam();
                 repo.reset(args[1]);
                 break;
+            case "merge":
+                if(args.length!=2 && args[1].getClass()== String.class){
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                initExam();
+                repo.merge(args[1]);
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);

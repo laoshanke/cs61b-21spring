@@ -49,6 +49,18 @@ public class Commit implements Serializable {
         this.nametoblobs = parent1.getnametoblobs();
         this.id = getId();
     }
+    Commit(String message,  String parent2id) {
+        this.message = message;
+        this.timestamp = new Date();
+        this.parent = new ArrayList<>();
+        Commit parent1 = get_branch_point_commit(get_head_point_branch());
+        parent.add(parent1.getId());
+        if(parent2id!=" "){
+            parent.add(parent2id);
+        }
+        this.nametoblobs = parent1.getnametoblobs();
+        this.id = getId();
+    }
     void save_commit() {
         String id = getId();
         File dir = join(COMMIT_DIR, id.substring(0,2));
@@ -66,6 +78,9 @@ public class Commit implements Serializable {
     }
     String getId(){
         return sha1(this.message, dateToTimeStamp(this.timestamp), this.parent.toString(), this.nametoblobs.toString());
+    }
+    List<String> getparent() {
+        return parent;
     }
     String getparent1() {
         return parent.get(0);

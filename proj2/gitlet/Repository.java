@@ -81,19 +81,24 @@ public class Repository {
 
     }
     void commit(String message){
+        commit(message, " ");
+    }
+    void commit(String message,String parent2id){
         if(message.equals("")){
             System.out.println("Please enter a commit message.");
             System.exit(0);
         }
         Addstage addstage = readObject(STAGING, Addstage.class);
-        if(addstage.getstage().size()==0&&remove.size()==0){
+        if( addstage.getstage().size() == 0 && remove.size() == 0){
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
-        Commit commit = new Commit(message);
+
+            Commit commit = new Commit(message,parent2id );
+
         Set<String> set = deepcopy(addstage.getstage().keySet());
         for(String name:set){
-            commit.change_blobs(name, addstage.getstage().get(name));//注意这两条指令的先后顺序
+            commit.change_blobs(name, addstage.getstage().get(name));
         }
         List<String> set2 = deepcopy(remove);
         for(String name:set2){
@@ -321,6 +326,64 @@ public class Repository {
         }
         addstage_clear();
     }
+    void merge(String name) {//合并分支name
+        Commit nowcommit = get_branch_point_commit(get_head_point_branch());
+        Commit commit2 = get_branch_point_commit(name);
+        Addstage addstage = new Addstage();
+        boolean flag_conflict = false;
+        if(remove.size()!=0 || addstage.getstage().size()!=0){
+            System.out.println("You have uncommitted changes.");
+            System.exit(0);
+        }
+        if(!join(BRANCH_DIR, name).exists()) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        if(get_head_point_branch().equals(name)){
+            System.out.println("Cannot merge a branch with itself.");
+            System.exit(0);
+        }
+        Commit crosscommit = find_cross_commit(nowcommit, commit2);
+        if(crosscommit.getId().equals(commit2.getId())){
+            System.out.println("Given branch is an ancestor of the current branch.");
+            System.exit(0);
+        }
+        if(crosscommit.getId().equals(nowcommit.getId())){
+            checkout3( name);
+            System.out.println("Current branch fast-forwarded.");
+            System.exit(0);
+        }
+        for(String filename:crosscommit.getnametoblobs().keySet()){
+            if(nowcommit.contains_name(filename)&&commit2.contains_name(filename)){
+                String id1 = nowcommit.getBlobId(filename);
+                String id2 = commit2.getBlobId(filename);
+                String id3 = crosscommit.getBlobId(filename);
+                if(!id1.equals(id3)&&id2.equals(id3)){
+                   continue;
+                } else if (!id2.equals(id3)&&id1.equals(id3)) {
+                    Blob blob = readObject(join(OBJECT_DIR, id2.substring(0,2), id2.substring(2,40)), Blob.class);
+                    writeContents(join(CWD, filename), blob.getContent());
+                    add(filename);
+                } else if ( !id1.equals(id2)&&!id1.equals(id3)&&!id2.equals(id3)) {
+                    conflict_merge(filename, id1, id2);
+                    flag_conflict = true;
+                }
+            }
+            if(nowcommit.contains_name(filename)&&nowcommit.getBlobId(filename).equals(crosscommit.getBlobId(filename))&&!commit2.contains_name(filename)){
+                rm(filename);
+            }
+        }
+        for(String filename:commit2.getnametoblobs().keySet()){
+            if(!nowcommit.contains_name(filename)&&!crosscommit.contains_name(filename)){
+                checkout2(commit2.getId(), filename);
+                add(filename);
+            }
+        }
+        commit("Merged "+name+" into "+get_head_point_branch()+"." , commit2.getId());
+        if(flag_conflict){
+            System.out.println("Encountered a merge conflict.");
+
+         }}
     static String find_long_sha1id(String message){
         if(message.length()==40){
             return message;//从作为唯一对应前缀的短的id找到完整commit版本的id
@@ -417,11 +480,40 @@ public class Repository {
         return nowcommit.contains_name(fileName);
     }
     Commit find_cross_commit(Commit commit1, Commit commit2) {//找到两个commit的交叉点
-        List<String> list1 = new ArrayList<>();
-        List<String> list2 = new ArrayList<>();
-        list1.add(commit1.getId());
-        list2.add(commit2.getId());
-        while()
+        HashSet<String> set1 = new HashSet<>();
+        HashSet<String> set2 = new HashSet<>();
+        Commit init_commit = new Commit();
+        set1.add(commit1.getId());
+        set2.add(commit2.getId());
+        while(!(commit1.getparent().contains(init_commit)&&commit2.getparent().contains(init_commit))){
+            if(!commit1.getparent().contains(init_commit)){
+                for(String id:commit1.getparent()){
+                    if(set2.contains(id)){
+                        return readObject(join(COMMIT_DIR, id.substring(0,2), id.substring(2,40)), Commit.class);
+                    }else{
+                        set1.add(id);
+                    }
+                }
+            }
+            if(!commit2.getparent().contains(init_commit)){
+                for(String id:commit2.getparent()){
+                    if(set1.contains(id)){
+                        return readObject(join(COMMIT_DIR, id.substring(0,2), id.substring(2,40)), Commit.class);
+                    }else{
+                        set2.add(id);
+                    }
+                }
+            }
+        }
+        return init_commit;
+    }
+    void conflict_merge(String fileName, String id1, String id2) {//处理冲突
+        Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0,2), id1.substring(2,40)), Blob.class);
+        Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0,2), id2.substring(2,40)), Blob.class);
+        String content1 = readContentsAsString(join(OBJECT_DIR, id1.substring(0,2), id1.substring(2,40)));
+        String content2 = readContentsAsString(join(OBJECT_DIR, id2.substring(0,2), id2.substring(2,40)));
+        String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>\n";
+        writeContents(join(CWD, fileName), content);
     }
     /* TODO: fill in the rest of this class. */
 }
