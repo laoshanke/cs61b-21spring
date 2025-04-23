@@ -100,13 +100,15 @@ public class Commit implements Serializable {
             System.out.println("Date: " + dateToTimeStamp(timestamp));
             System.out.println(message);
             System.out.println();
-            if(parent.size()!=0) {
-                Commit parent1 = get_branch_point_commit(get_head_point_branch());
-                parent1.log_print();
-
             }
+    }
+    void print_log_recursively(){
+        log_print();
+        if(parent.size()!=0) {
+            String parent1id = getparent1();
+            Commit parent1 = readObject(join(COMMIT_DIR, parent1id.substring(0,2), parent1id.substring(2,40)), Commit.class);
+            parent1.print_log_recursively();
         }
-
     }
     /**
      * TODO: fill in the constructor here.

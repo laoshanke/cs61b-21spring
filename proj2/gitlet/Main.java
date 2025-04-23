@@ -85,6 +85,7 @@ public class Main {
                 }
                 initExam();
                 repo.status();
+                break;
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);

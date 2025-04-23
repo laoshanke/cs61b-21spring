@@ -127,7 +127,7 @@ public class Repository {
         }
     }
     void log(){
-        get_branch_point_commit(get_head_point_branch()).log_print();
+        get_branch_point_commit(get_head_point_branch()).print_log_recursively();
     }
     void global_log(){
         List<String > dirlist = plainFilenamesIn(COMMIT_DIR);
