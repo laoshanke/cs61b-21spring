@@ -6,11 +6,11 @@ import java.io.Serializable;
 import static gitlet.Repository.createFileplus;
 import static gitlet.Utils.join;
 
-public class blob implements Serializable {
+public class Blob implements Serializable {
    private String name;
     private byte[] content;
     private String id;
-    public blob(File file){
+    public Blob(File file){
         content = Utils.readContents(file);
         name = file.getName();
         id = getId();

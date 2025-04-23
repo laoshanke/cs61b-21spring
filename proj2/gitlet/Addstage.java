@@ -1,6 +1,6 @@
 package gitlet;
 
-import java.io.File;
+
 import java.io.Serializable;
 import java.util.TreeMap;
 
@@ -10,6 +10,7 @@ import static gitlet.Utils.writeObject;
 public class Addstage implements Serializable {
     private TreeMap<String, String> stage;
     public Addstage() {
+
         stage = new TreeMap<>();
     }
     public void add(String fileName, String blobId) {
@@ -25,3 +26,4 @@ public class Addstage implements Serializable {
         return stage;
     }
 }
+

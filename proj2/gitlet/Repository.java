@@ -62,7 +62,7 @@ public class Repository {
             System.out.println("File does not exist.");
             System.exit(0);
         }
-        blob blob = fileGetBLOB(fileName);
+        Blob blob = fileGetBLOB(fileName);
         String id = blob.getId();
         String id2 =get_branch_point_commit(get_head_point_branch()).getBlobId(fileName);
         if(id2!=null&&id2.equals(id)){//如果文件的当前工作版本与当前提交中的版本相同，则不要将其暂存以待添加；若该文件已在暂存区中
@@ -94,14 +94,13 @@ public class Repository {
         Set<String> set = deepcopy(addstage.getstage().keySet());
         for(String name:set){
             commit.change_blobs(name, addstage.getstage().get(name));//注意这两条指令的先后顺序
-            addstage.remove(name);
         }
         List<String> set2 = deepcopy(remove);
         for(String name:set2){
             commit.remove_blob(name);
             remove.remove(name);//不要忘了移除remove
         }
-        addstage.save();
+        addstage_clear();
         commit.save_commit();
         writeBranch( get_head_point_branch(), commit.getId());
     }
@@ -252,7 +251,7 @@ public class Repository {
             System.exit(0);
         }
         String id2 = pointcommit.getBlobId(fileName);
-        blob blob = readObject(join(OBJECT_DIR, id2.substring(0,2), id2.substring(2,40)), blob.class);
+        Blob blob = readObject(join(OBJECT_DIR, id2.substring(0,2), id2.substring(2,40)), Blob.class);
         createFileplus(join(CWD, fileName));
         writeContents(join(CWD, fileName), blob.getContent());
     }
@@ -314,17 +313,21 @@ public class Repository {
         }
         addstage_clear();
     }
-    static String find_long_sha1id(String message){//从作为唯一对应前缀的短的id找到完整commit版本的id
+    static String find_long_sha1id(String message){
+        if(message.length()==40){
+            return message;//从作为唯一对应前缀的短的id找到完整commit版本的id
+        }
         File dir = join(COMMIT_DIR, message.substring(0,2));
         List<String> list = plainFilenamesIn(dir);
         for(String id:list){
+            id = message.substring(0,2)+id;
             if(same_pre(message, id)){
-                return message;
+                return id;
             }
         }
         return null;
     }
-    static boolean same_pre(String id1, String id2) {//返回两个id相同的前缀长度
+    static boolean same_pre(String id1, String id2) {
         for(int i=0;i<id1.length();i++){
             if(id1.charAt(i)!=id2.charAt(i)){
                 return false;
@@ -357,13 +360,13 @@ public class Repository {
     static Commit get_branch_point_commit(String name) {//得到分支的commit
         String id = readContentsAsString(join(BRANCH_DIR, name));
         return readObject(join(COMMIT_DIR, id.substring(0,2), id.substring(2,40)), Commit.class);}
-    static blob fileGetBLOB(String fileName) {//得到工作区中文件的对应Blob
+    static Blob fileGetBLOB(String fileName) {//得到工作区中文件的对应Blob
         File file = join(CWD, fileName);
         if(!file.exists()) {
             System.out.println("File does not exist.");
             System.exit(0);
         }
-        return new blob(file);
+        return new Blob(file);
 
     }
     Set<String> deepcopy(Set<String> set) {
