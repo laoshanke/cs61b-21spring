@@ -121,7 +121,7 @@ public class Repository {
                 file.delete();
             }
         }
-        if(flag){
+        if(!flag){
             System.out.println("No reason to remove the file.");
             System.exit(0);
         }
@@ -130,7 +130,7 @@ public class Repository {
         get_branch_point_commit(get_head_point_branch()).print_log_recursively();
     }
     void global_log(){
-        List<String > dirlist = plainFilenamesIn(COMMIT_DIR);
+        List<String > dirlist = getSubdirectoryNames(COMMIT_DIR);
         for(String name:dirlist){
             List<String> list = plainFilenamesIn(join(COMMIT_DIR, name));
             if(list.size()!=0) {
@@ -143,9 +143,10 @@ public class Repository {
     }
     void find(String message){
         Boolean flag = false;
-        List<String > dirlist = plainFilenamesIn(COMMIT_DIR);
+        List<String > dirlist = getSubdirectoryNames(COMMIT_DIR);
         for(String name:dirlist){
-            List<String> list = plainFilenamesIn(join(COMMIT_DIR, name));            if(list.size()!=0) {
+            List<String> list = plainFilenamesIn(join(COMMIT_DIR, name));
+            if(list.size()!=0) {
                 for (String id : list) {
                     Commit commit = readObject(join(COMMIT_DIR, name, id), Commit.class);
                     if(commit.getMessage().equals(message)){
@@ -245,6 +246,22 @@ public class Repository {
             newlist.add(name);
         }
         return newlist;
+    }
+    public static List<String> getSubdirectoryNames(File dir) {
+        List<String> dirNames = new ArrayList<>();
+        if (!dir.exists() || !dir.isDirectory()) {
+            return dirNames; // 无效目录返回空列表
+        }
+        File[] subItems = dir.listFiles();
+        if (subItems == null) {
+            return dirNames; // 目录存在但无权限访问时返回空列表
+        }
+        for (File item : subItems) {
+            if (item.isDirectory()) {
+                dirNames.add(item.getName()); // 添加目录名（非路径）
+            }
+        }
+        return dirNames;
     }
     /* TODO: fill in the rest of this class. */
 }
