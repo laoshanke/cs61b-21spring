@@ -114,6 +114,14 @@ public class Repository {
         }
         if(get_branch_point_commit(get_head_point_branch()).contains_name(fileName)){
             remove.add(fileName);
+            if(!remove.contains(fileName)){
+                System.out.println("!!!");
+                System.exit(0);
+            }
+            if(remove.contains(fileName)){
+                System.out.println("???");
+                System.exit(0);
+            }
             flag = true;
             File file = join(CWD, fileName);
             if(file.exists()){
@@ -407,6 +415,13 @@ public class Repository {
     boolean check_file_in_nowcommit(String fileName) {//判断当前commit中是否有这个文件
         Commit nowcommit = get_branch_point_commit(get_head_point_branch());
         return nowcommit.contains_name(fileName);
+    }
+    Commit find_cross_commit(Commit commit1, Commit commit2) {//找到两个commit的交叉点
+        List<String> list1 = new ArrayList<>();
+        List<String> list2 = new ArrayList<>();
+        list1.add(commit1.getId());
+        list2.add(commit2.getId());
+        while()
     }
     /* TODO: fill in the rest of this class. */
 }
