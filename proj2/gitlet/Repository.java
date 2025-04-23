@@ -93,12 +93,13 @@ public class Repository {
         Commit commit = new Commit(message);
         Set<String> set = deepcopy(addstage.stage.keySet());
         for(String name:set){
+            commit.change_blobs(name, addstage.stage.get(name));//注意这两条指令的先后顺序
             addstage.remove(name);
-            commit.change_blobs(name, addstage.stage.get(name));
         }
         List<String> set2 = deepcopy(remove);
         for(String name:set2){
             commit.remove_blob(name);
+            remove.remove(name);//不要忘了移除remove
         }
         addstage.save();
         commit.save_commit();
@@ -107,8 +108,7 @@ public class Repository {
     void rm(String fileName){
         boolean flag = false;
         Addstage addstage = readObject(STAGING, Addstage.class);
-        TreeMap<String, String> map =deepcopy(addstage.stage);
-        if(map.containsKey(fileName)){
+        if(addstage.stage.containsKey(fileName)){
             addstage.remove(fileName);
             addstage.save();
             flag = true;
@@ -121,7 +121,7 @@ public class Repository {
                 file.delete();
             }
         }
-        if(!flag){
+        if(flag){
             System.out.println("No reason to remove the file.");
             System.exit(0);
         }
