@@ -187,6 +187,10 @@ public class Repository {
             System.out.println(name);
         }
         System.out.println();
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        System.out.println();
+        System.out.println("=== Untracked Files ===");
+        System.out.println();
     }
     static void createFileplus(File file) {//超级创造文件
         if(!file.exists()){
