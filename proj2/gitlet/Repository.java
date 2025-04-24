@@ -38,11 +38,11 @@ public class Repository {
     public static final File OBJECT_DIR = join(MYGITLET_DIR, "objects");
 
     public static final File STAGING = join(MYGITLET_DIR, "staging");
-
+    public static final File STAGING_REMOVE = join(MYGITLET_DIR, "staging_remove");
     public static final File BRANCH_DIR = join(MYGITLET_DIR, "branches");
 
+
     public static final File HEAD = join(MYGITLET_DIR, "head");
-    public List<String> remove = new ArrayList<>();
 
     void init() {
         if (GITLET_DIR.exists()) {
@@ -61,6 +61,8 @@ public class Repository {
         writeBranch("master", init.getId());
         head_point_branch("master");
         Addstage staging = new Addstage();
+        Remove remove = new Remove();
+        remove.save();
         staging.save();
     }
 
@@ -72,6 +74,7 @@ public class Repository {
         Blob blob = fileGetBLOB(fileName);
         String id = blob.getId();
         String id2 = get_branch_point_commit(get_head_point_branch()).getBlobId(fileName);
+        Remove remove = readObject(STAGING_REMOVE, Remove.class);
         if (id2 != null && id2.equals(id)) {//如果文件的当前工作版本与当前提交中的版本相同，则不要将其暂存以待添加；若该文件已在暂存区中
             // ，则将其从暂存区移除（比如当一个文件先被修改、添加，然后又改回其原始版本时就会出现这种情况）。
             Addstage stage = readObject(STAGING, Addstage.class);
@@ -97,6 +100,7 @@ public class Repository {
             System.exit(0);
         }
         Addstage addstage = readObject(STAGING, Addstage.class);
+        Remove remove = readObject(STAGING_REMOVE, Remove.class);
         if (addstage.getstage().size() == 0 && remove.size() == 0) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
@@ -107,7 +111,8 @@ public class Repository {
         for (String name : set) {
             commit.change_blobs(name, addstage.getstage().get(name));
         }
-        List<String> set2 = deepcopy(remove);
+        Remove remove2 = readObject(STAGING_REMOVE, Remove.class);
+        List<String> set2 = deepcopy(remove2.getRemove());
         for (String name : set2) {
             commit.remove_blob(name);
             remove.remove(name);//不要忘了移除remove
@@ -121,13 +126,12 @@ public class Repository {
         boolean flag = false;
         Addstage addstage = readObject(STAGING, Addstage.class);
         if (addstage.getstage().containsKey(fileName)) {
-            System.out.println("!!!");
-            System.exit(0);
             addstage.remove(fileName);
             addstage.save();
             flag = true;
         }
         if (get_branch_point_commit(get_head_point_branch()).contains_name(fileName)) {
+            Remove remove = readObject(STAGING_REMOVE, Remove.class);
             remove.add(fileName);
             flag = true;
             File file = join(CWD, fileName);
@@ -200,8 +204,10 @@ public class Repository {
         }
         System.out.println();
         System.out.println("=== Removed Files ===");
-        Collections.sort(remove);
-        for (String name : remove) {
+        Remove remove1 = readObject(STAGING_REMOVE, Remove.class);
+        List<String> list_remove = remove1.getRemove();
+        Collections.sort(list_remove);
+        for (String name : list_remove) {
             System.out.println(name);
         }
         System.out.println();
@@ -227,7 +233,7 @@ public class Repository {
         }
         Set<String> list5 = get_branch_point_commit(get_head_point_branch()).getnametoblobs().keySet();
         for (String name : list5) {
-            if (!list3.contains(name) && !remove.contains(name)) {
+            if (!list3.contains(name) && !remove1.contains(name)) {
                 String id = name + " (deleted)";
                 list4.add(id);
             }
@@ -243,7 +249,7 @@ public class Repository {
             if (!check_file_in_nowcommit(name) && !addstage.getstage().containsKey(name)) {
                 list6.add(name);
             }
-            if (remove.contains(name)) {
+            if (remove1.contains(name)) {
                 list6.add(name);
             }
         }
@@ -341,7 +347,8 @@ public class Repository {
     void merge(String name) {//合并分支name
         Commit nowcommit = get_branch_point_commit(get_head_point_branch());
         Commit commit2 = get_branch_point_commit(name);
-        Addstage addstage = new Addstage();
+        Addstage addstage = readObject(STAGING, Addstage.class);
+        Remove remove = readObject(STAGING_REMOVE, Remove.class);
         boolean flag_conflict = false;
         if (remove.size() != 0 || addstage.getstage().size() != 0) {
             System.out.println("You have uncommitted changes.");

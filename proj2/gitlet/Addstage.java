@@ -14,9 +14,11 @@ public class Addstage implements Serializable {
     }
     public void add(String fileName, String blobId) {
         stage.put(fileName, blobId);
+        save();
     }
     public void remove(String fileName) {
         stage.remove(fileName);
+        save();
     }
     public void save() {
             writeObject(STAGING, this);
