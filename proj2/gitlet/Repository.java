@@ -403,6 +403,14 @@ public class Repository {
                     flag_conflict = true;
                 }
             }
+            if(  nowcommit.contains_name(filename)&& !commit2.contains_name(filename) && !(nowcommit.getBlobId(filename)).equals(crosscommit.getBlobId(filename))){
+                conflict_merge(filename, nowcommit.getBlobId(filename), null);
+                flag_conflict = true;
+            }
+            if(commit2.contains_name(filename)&&!nowcommit.contains_name(filename) &&!(commit2.getBlobId(filename)).equals(crosscommit.getBlobId(filename))){
+                conflict_merge(filename, null, commit2.getBlobId(filename));
+                flag_conflict = true;
+            }
             if (nowcommit.contains_name(filename) && nowcommit.getBlobId(filename).equals(crosscommit.getBlobId(filename)) && !commit2.contains_name(filename)) {
                 rm(filename);
             }
@@ -411,6 +419,10 @@ public class Repository {
             if (!nowcommit.contains_name(filename) && !crosscommit.contains_name(filename)) {
                 checkout2(commit2.getId(), filename);
                 add(filename);
+            }
+            if(nowcommit.contains_name(filename) && !(nowcommit.getBlobId(filename).equals(commit2.getBlobId(filename)))&& !crosscommit.contains_name(filename)){
+                conflict_merge(filename, null, commit2.getBlobId(filename));
+                flag_conflict = true;
             }
         }
         commit("Merged " + name + " into " + get_head_point_branch() + ".", commit2.getId());
@@ -531,7 +543,7 @@ public class Repository {
         Commit init_commit = new Commit();
         set1.add(commit1.getId());
         set2.add(commit2.getId());
-        while (!(commit1.getparent().contains(init_commit) && commit2.getparent().contains(init_commit))) {
+        while (!(commit1.getparent().contains(init_commit) && !commit2.getparent().contains(init_commit))) {
             if (!commit1.getparent().contains(init_commit)) {
                 for (String id : commit1.getparent()) {
                     if (set2.contains(id)) {
@@ -555,10 +567,20 @@ public class Repository {
     }
 
     void conflict_merge(String fileName, String id1, String id2) {//处理冲突
-        Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
-        Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
-        String content1 = readContentsAsString(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)));
-        String content2 = readContentsAsString(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)));
+        String content1 = "";
+        String content2 = "";
+        if(!(id1==null) &&!(id2==null)){
+            Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
+            Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
+            content1 = readContentsAsString(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)));
+             content2 = readContentsAsString(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)));
+        } else if (id1==null){
+            Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
+             content2 = readContentsAsString(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)));
+        }else {
+            Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
+             content1 = readContentsAsString(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)));
+        }
         String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>\n";
         writeContents(join(CWD, fileName), content);
     }
