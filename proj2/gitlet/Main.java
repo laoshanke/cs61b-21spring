@@ -40,7 +40,7 @@ public class Main {
                 repo.add(args[1]);
                 break;
             case "commit":
-                if(args.length!=2 && args[1].getClass()!= String.class){
+                if(args.length!=2 && args[1].getClass()!= String.class) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -48,7 +48,7 @@ public class Main {
                 repo.commit( args[1]);
                 break;
             case "rm":
-                if(args.length!=2 && args[1].getClass()!= String.class){
+                if(args.length!=2 && args[1].getClass()!= String.class) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -56,7 +56,7 @@ public class Main {
                 repo.rm(args[1]);
                 break;
             case "log":
-                if(args.length!=1){
+                if(args.length!=1) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -64,7 +64,7 @@ public class Main {
                 repo.log();
                 break;
             case "global-log":
-                if(args.length!=1){
+                if(args.length!=1) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -72,7 +72,7 @@ public class Main {
                 repo.global_log();
                 break;
             case "find":
-                if(args.length!=2 && args[1].getClass()!= String.class){
+                if(args.length!=2 && args[1].getClass()!= String.class) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -80,7 +80,7 @@ public class Main {
                 repo.find(args[1]);
                 break;
             case "status":
-                if(args.length!=1){
+                if(args.length!=1) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -88,13 +88,13 @@ public class Main {
                 repo.status();
                 break;
             case "checkout":
-                if(args.length==2 && args[1].getClass()== String.class){
+                if(args.length==2 && args[1].getClass()== String.class) {
                     initExam();
                     repo.checkout3(args[1]);
-                } else if(args.length==3 && args[1].equals("--")&& args[2].getClass()== String.class){
+                } else if(args.length==3 && args[1].equals("--")&& args[2].getClass()== String.class) {
                     initExam();
                     repo.checkout1(args[2]);
-                } else if ( args.length==4 && args[1].getClass()== String.class&& args[2].equals("--")&& args[3].getClass()== String.class){
+                } else if ( args.length==4 && args[1].getClass()== String.class&& args[2].equals("--")&& args[3].getClass()== String.class) {
                     initExam();
                     repo.checkout2(args[1], args[3]);
                 }else {
@@ -103,7 +103,7 @@ public class Main {
                 }
                 break;
             case "branch":
-                if(args.length!=2 && args[1].getClass()== String.class){
+                if(args.length!=2 && args[1].getClass()== String.class) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -111,7 +111,7 @@ public class Main {
                 repo.branch(args[1]);
                 break;
             case "rm-branch":
-                if(args.length!=2 && args[1].getClass()== String.class){
+                if(args.length!=2 && args[1].getClass()== String.class) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -119,7 +119,7 @@ public class Main {
                 repo.rm_branch(args[1]);
                 break;
             case "reset":
-                if(args.length!=2 && args[1].getClass()== String.class){
+                if(args.length !=2 && args[1].getClass() == String.class) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -127,7 +127,7 @@ public class Main {
                 repo.reset(args[1]);
                 break;
             case "merge":
-                if(args.length!=2 && args[1].getClass()== String.class){
+                if( args.length !=2 && args[1].getClass() == String.class ) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
@@ -138,8 +138,8 @@ public class Main {
                 System.exit(0);
         }
     }
-    static void initExam(){
-        if (!GITLET_DIR.exists()) {
+    static void initExam() {
+        if ( !GITLET_DIR.exists() ) {
             System.out.println("Not in an initialized Gitlet directory.");
             System.exit(0);
         }

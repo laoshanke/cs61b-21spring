@@ -47,7 +47,7 @@ public class Commit implements Serializable {
         this.parent = new ArrayList<>();
         Commit parent1 = get_branch_point_commit(get_head_point_branch());
         parent.add(parent1.getId());
-        if(parent2id != null){
+        if(parent2id != null) {
             parent.add(parent2id);
         }
         this.nametoblobs = parent1.getnametoblobs();
@@ -96,15 +96,15 @@ public class Commit implements Serializable {
         DateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.US);
         return dateFormat.format(date);
     }
-    void log_print(){
-        if(parent.size()==2){
-            System.out.println("===");
-            System.out.println("commit " + getId());
-            System.out.println("merge " + getparent1().substring(0,7) + " " + getparent2().substring(0,7));
-            System.out.println("Date: " + dateToTimeStamp(timestamp));
-            System.out.println(message);
+    void log_print() {
+        if( parent.size() == 2 ) {
+            System.out.println( "===" );
+            System.out.println( "commit " + getId() );
+            System.out.println( "merge " + getparent1().substring(0,7) + " " + getparent2().substring(0,7) );
+            System.out.println( "Date: " + dateToTimeStamp(timestamp) );
+            System.out.println( message );
             System.out.println();
-        }else{
+        } else {
             System.out.println("===");
             System.out.println("commit " + getId());
             System.out.println("Date: " + dateToTimeStamp(timestamp));
@@ -112,7 +112,7 @@ public class Commit implements Serializable {
             System.out.println();
             }
     }
-    void print_log_recursively(){
+    void print_log_recursively() {
         log_print();
         if(parent.size()!=0) {
             String parent1id = getparent1();
