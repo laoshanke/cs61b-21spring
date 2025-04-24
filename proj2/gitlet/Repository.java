@@ -81,7 +81,7 @@ public class Repository {
 
     }
     void commit(String message){
-        commit(message, " ");
+        commit(message, null);
     }
     void commit(String message,String parent2id){
         if(message.equals("")){
@@ -343,6 +343,14 @@ public class Repository {
             System.out.println("Cannot merge a branch with itself.");
             System.exit(0);
         }
+        if(commit2.getnametoblobs().equals(nowcommit.getnametoblobs())){
+            System.out.println("No changes added to the commit.");
+            System.exit(0);
+        }
+        if(commit2.getId().equals(nowcommit.getId())){
+            System.out.println("Given branch is an ancestor of the current branch.");
+            System.exit(0);
+        }
         Commit crosscommit = find_cross_commit(nowcommit, commit2);
         if(crosscommit.getId().equals(commit2.getId())){
             System.out.println("Given branch is an ancestor of the current branch.");
@@ -352,6 +360,13 @@ public class Repository {
             checkout3( name);
             System.out.println("Current branch fast-forwarded.");
             System.exit(0);
+        }
+        List<String> list_cwd = plainFilenamesIn(CWD);
+        for(String name_cwd:list_cwd){
+            if(!nowcommit.contains_name(name_cwd)&&commit2.contains_name(name_cwd)&&!crosscommit.contains_name(name_cwd)){
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
         }
         for(String filename:crosscommit.getnametoblobs().keySet()){
             if(nowcommit.contains_name(filename)&&commit2.contains_name(filename)){

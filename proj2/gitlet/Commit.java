@@ -40,22 +40,14 @@ public class Commit implements Serializable {
         this.nametoblobs = new TreeMap<>();
         this.id = getId();
     }
-    Commit( String message){
-        this.message = message;
-        this.timestamp = new Date();
-        this.parent = new ArrayList<>();
-        Commit parent1 = get_branch_point_commit(get_head_point_branch());
-        parent.add(parent1.getId());
-        this.nametoblobs = parent1.getnametoblobs();
-        this.id = getId();
-    }
+
     Commit(String message,  String parent2id) {
         this.message = message;
         this.timestamp = new Date();
         this.parent = new ArrayList<>();
         Commit parent1 = get_branch_point_commit(get_head_point_branch());
         parent.add(parent1.getId());
-        if(parent2id!=" "){
+        if(parent2id != null){
             parent.add(parent2id);
         }
         this.nametoblobs = parent1.getnametoblobs();
