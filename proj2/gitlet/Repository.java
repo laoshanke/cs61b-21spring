@@ -121,6 +121,8 @@ public class Repository {
         boolean flag = false;
         Addstage addstage = readObject(STAGING, Addstage.class);
         if (addstage.getstage().containsKey(fileName)) {
+            System.out.println("!!!");
+            System.exit(0);
             addstage.remove(fileName);
             addstage.save();
             flag = true;
