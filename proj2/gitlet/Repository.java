@@ -374,7 +374,7 @@ public class Repository {
             System.out.println("Given branch is an ancestor of the current branch.");
             System.exit(0);
         }
-        Commit crosscommit = find_cross_commit(nowcommit, commit2);
+        Commit crosscommit = find_cross_commit(nowcommit, commit2,new HashSet<>(), new HashSet<>());
         if (crosscommit.getId().equals(commit2.getId())) {
             System.out.println("Given branch is an ancestor of the current branch.");
             System.exit(0);
@@ -548,35 +548,28 @@ public class Repository {
         return nowcommit.contains_name(fileName);
     }
 
-    Commit find_cross_commit(Commit commit1, Commit commit2) {//找到两个commit的交叉点
-        HashSet<String> set1 = new HashSet<>();
-        HashSet<String> set2 = new HashSet<>();
-        Commit init_commit = new Commit();
+    Commit find_cross_commit(Commit commit1, Commit commit2,HashSet<String> set1,HashSet<String>set2) {//找到两个commit的交叉点
         set1.add(commit1.getId());
         set2.add(commit2.getId());
-        while (!(commit1.getparent().contains(init_commit) && !commit2.getparent().contains(init_commit))) {
-            if (!commit1.getparent().contains(init_commit)) {
-                for (String id : commit1.getparent()) {
-                    if (set2.contains(id)) {
-                        return readObject(join(COMMIT_DIR, id.substring(0, 2), id.substring(2, 40)), Commit.class);
-                    } else {
-                        set1.add(id);
-                    }
+        if(!commit1.getparent().isEmpty()){
+            for (String id : commit1.getparent()) {
+                if (set2.contains(id)) {
+                    return commit1;
+                } else {
+                    return find_cross_commit(get_branch_point_commit(id), commit2, set1, set2);
                 }
             }
-            if (!commit2.getparent().contains(init_commit)) {
-                for (String id : commit2.getparent()) {
-                    if (set1.contains(id)) {
-                        return readObject(join(COMMIT_DIR, id.substring(0, 2), id.substring(2, 40)), Commit.class);
-                    } else {
-                        set2.add(id);
-                    }
-                }
-            }
-            commit1 = readObject(join(COMMIT_DIR, commit1.getparent1().substring(0, 2), commit1.getparent1().substring(2, 40)), Commit.class);
-            commit2 = readObject(join(COMMIT_DIR, commit2.getparent1().substring(0, 2), commit2.getparent1().substring(2, 40)), Commit.class);
         }
-        return init_commit;
+        if(!commit2.getparent().isEmpty()){
+            for (String id : commit2.getparent()) {
+                if (set1.contains(id)) {
+                    return commit2;
+                } else {
+                    return find_cross_commit(commit1, get_branch_point_commit(id), set1, set2);
+                }
+            }
+        }
+        return new Commit();
     }
 
     void conflict_merge(String fileName, String id1, String id2) {//处理冲突
