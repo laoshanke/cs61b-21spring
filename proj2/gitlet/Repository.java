@@ -592,7 +592,7 @@ public class Repository {
                }
            }
        }
-       return null;
+       return new Commit();
     }
 
     void conflict_merge(String fileName, String id1, String id2) {//处理冲突
@@ -606,7 +606,7 @@ public class Repository {
         }else {
              content1 = readContentsAsString(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)));
         }
-        String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>\n";
+        String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>";
         writeContents(join(CWD, fileName), content);
     }
 
