@@ -374,7 +374,7 @@ public class Repository {
             System.out.println("Given branch is an ancestor of the current branch.");
             System.exit(0);
         }
-        Commit crosscommit = find_cross_commit(nowcommit, commit2,new HashSet<>(), new HashSet<>());
+        Commit crosscommit = find_cross_commit(nowcommit, commit2);
         if (crosscommit.getId().equals(commit2.getId())) {
             System.out.println("Given branch is an ancestor of the current branch.");
             System.exit(0);
@@ -548,53 +548,51 @@ public class Repository {
         return nowcommit.contains_name(fileName);
     }
 
-    Commit find_cross_commit(Commit commit1, Commit commit2, HashSet<String> set1, HashSet<String> set2) {
-        // 使用队列来进行广度优先搜索
-        Queue<Commit> queue1 = new LinkedList<>();
-        Queue<Commit> queue2 = new LinkedList<>();
-
-        // 初始化队列和集合
-        queue1.add(commit1);
-        queue2.add(commit2);
-        set1.add(commit1.getId());
-        set2.add(commit2.getId());
-
-        while (!queue1.isEmpty() || !queue2.isEmpty()) {
-            // 处理commit1方向的当前层
-            int levelSize = queue1.size();
-            for (int i = 0; i < levelSize; i++) {
-                Commit current = queue1.poll();
-                for (String parentId : current.getparent()) {
-                    // 检查当前父提交是否在set2中
-                    if (set2.contains(parentId)) {
-                        return get_branch_point_commit(parentId);
-                    }
-                    if (!set1.contains(parentId)) {
-                        set1.add(parentId);
-                        queue1.add(get_branch_point_commit(parentId));
-                    }
-                }
-            }
-
-            // 处理commit2方向的当前层
-            levelSize = queue2.size();
-            for (int i = 0; i < levelSize; i++) {
-                Commit current = queue2.poll();
-                for (String parentId : current.getparent()) {
-                    // 检查当前父提交是否在set1中
-                    if (set1.contains(parentId)) {
-                        return get_branch_point_commit(parentId);
-                    }
-                    if (!set2.contains(parentId)) {
-                        set2.add(parentId);
-                        queue2.add(get_branch_point_commit(parentId));
-                    }
-                }
-            }
-        }
-
-        // 未找到共同祖先
-        return null;
+    Commit find_cross_commit(Commit commit1, Commit commit2) {
+        // 将当前提交的 ID 添加到各自的集合中
+       Queue<Commit> queue1 = new LinkedList<>();
+       Queue<Commit> queue2 = new LinkedList<>();
+       Set<String> visited1 = new HashSet<>();
+       Set<String> visited2 = new HashSet<>();
+       queue1.offer(commit1);
+       queue2.offer(commit2);
+       visited1.add(commit1.getId());
+       visited2.add(commit2.getId());
+       while (!queue1.isEmpty() && !queue2.isEmpty()) {
+           int size1 = queue1.size();
+           for (int i = 0; i < size1; i++) {
+               Commit commit = queue1.poll();
+               if(visited2.contains(commit.getId())){
+                   return commit;
+               }else {
+                       visited1.add(commit.getId());
+               }
+               if(!commit.getparent().isEmpty()){
+                   for (String parent : commit.getparent()) {
+                       if (!visited1.contains(parent)){
+                           queue1.offer(readObject(join(COMMIT_DIR, parent.substring(0, 2), parent.substring(2, 40)), Commit.class));
+                       }
+                   }
+               }
+           }
+           int size2 = queue2.size();
+           for (int i = 0; i < size2; i++) {
+               Commit commit = queue2.poll();
+               if(visited1.contains(commit.getId())){
+                   return commit;
+               }else {
+                   visited2.add(commit.getId());
+               }
+               if(!commit.getparent().isEmpty()){
+                   for (String parent : commit.getparent()) {
+                       if (!visited2.contains(parent)){
+                           queue2.offer(readObject(join(COMMIT_DIR, parent.substring(0, 2), parent.substring(2, 40)), Commit.class));
+                       }
+                   }
+               }
+           }
+       }
+       return null;
     }
 
     void conflict_merge(String fileName, String id1, String id2) {//处理冲突
