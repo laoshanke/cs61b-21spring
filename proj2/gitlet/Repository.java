@@ -549,46 +549,52 @@ public class Repository {
     }
 
     Commit find_cross_commit(Commit commit1, Commit commit2, HashSet<String> set1, HashSet<String> set2) {
-        // 将当前提交的 ID 添加到各自的集合中
+        // 使用队列来进行广度优先搜索
+        Queue<Commit> queue1 = new LinkedList<>();
+        Queue<Commit> queue2 = new LinkedList<>();
+
+        // 初始化队列和集合
+        queue1.add(commit1);
+        queue2.add(commit2);
         set1.add(commit1.getId());
         set2.add(commit2.getId());
 
-        // 检查 commit1 的所有父提交
-        if (!commit1.getparent().isEmpty()) {
-            for (String id : commit1.getparent()) {
-                if (set2.contains(id)) {
-                    // 如果 set2 包含当前父提交的 ID，说明找到了交叉点
-                    return get_branch_point_commit(id);
+        while (!queue1.isEmpty() || !queue2.isEmpty()) {
+            // 处理commit1方向的当前层
+            int levelSize = queue1.size();
+            for (int i = 0; i < levelSize; i++) {
+                Commit current = queue1.poll();
+                for (String parentId : current.getparent()) {
+                    // 检查当前父提交是否在set2中
+                    if (set2.contains(parentId)) {
+                        return get_branch_point_commit(parentId);
+                    }
+                    if (!set1.contains(parentId)) {
+                        set1.add(parentId);
+                        queue1.add(get_branch_point_commit(parentId));
+                    }
                 }
             }
-            // 递归检查 commit1 的所有父提交
-            for (String id : commit1.getparent()) {
-                Commit result = find_cross_commit(get_branch_point_commit(id), commit2, set1, set2);
-                if (result != null) {
-                    return result;
+
+            // 处理commit2方向的当前层
+            levelSize = queue2.size();
+            for (int i = 0; i < levelSize; i++) {
+                Commit current = queue2.poll();
+                for (String parentId : current.getparent()) {
+                    // 检查当前父提交是否在set1中
+                    if (set1.contains(parentId)) {
+                        return get_branch_point_commit(parentId);
+                    }
+                    if (!set2.contains(parentId)) {
+                        set2.add(parentId);
+                        queue2.add(get_branch_point_commit(parentId));
+                    }
                 }
             }
         }
 
-        // 检查 commit2 的所有父提交
-        if (!commit2.getparent().isEmpty()) {
-            for (String id : commit2.getparent()) {
-                if (set1.contains(id)) {
-                    // 如果 set1 包含当前父提交的 ID，说明找到了交叉点
-                    return get_branch_point_commit(id);
-                }
-            }
-            // 递归检查 commit2 的所有父提交
-            for (String id : commit2.getparent()) {
-                Commit result = find_cross_commit(commit1, get_branch_point_commit(id), set1, set2);
-                if (result != null) {
-                    return result;
-                }
-            }
-        }
-
-        // 未找到交叉点，返回 null
-        return new Commit();
+        // 未找到共同祖先
+        return null;
     }
 
     void conflict_merge(String fileName, String id1, String id2) {//处理冲突
