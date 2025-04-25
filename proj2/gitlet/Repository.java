@@ -386,42 +386,49 @@ public class Repository {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
+            if(commit2.contains_name(name_cwd)&&!nowcommit.contains_name(name_cwd) &&!(commit2.getBlobId(name_cwd)).equals(crosscommit.getBlobId(name_cwd))){
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+            if(!nowcommit.contains_name(name_cwd) && !crosscommit.contains_name(name_cwd)&&commit2.contains_name(name_cwd)){
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
         }
         for (String filename : crosscommit.getnametoblobs().keySet()) {
             if (nowcommit.contains_name(filename) && commit2.contains_name(filename)) {
                 String id1 = nowcommit.getBlobId(filename);
                 String id2 = commit2.getBlobId(filename);
                 String id3 = crosscommit.getBlobId(filename);
-                if (!id1.equals(id3) && id2.equals(id3)) {
+                if (!id1.equals(id3) && id2.equals(id3)) {//2
                     continue;
                 } else if (!id2.equals(id3) && id1.equals(id3)) {
-                    Blob blob = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
-                    writeContents(join(CWD, filename), blob.getContent());
+                    checkout2(commit2.getId(), filename);//1
                     add(filename);
                 } else if (!id1.equals(id2) && !id1.equals(id3) && !id2.equals(id3)) {
-                    conflict_merge(filename, id1, id2);
+                    conflict_merge(filename, id1, id2);//8
                     flag_conflict = true;
                 }
             }
             if(  nowcommit.contains_name(filename)&& !commit2.contains_name(filename) && !(nowcommit.getBlobId(filename)).equals(crosscommit.getBlobId(filename))){
-                conflict_merge(filename, nowcommit.getBlobId(filename), null);
+                conflict_merge(filename, nowcommit.getBlobId(filename), null);//8
                 flag_conflict = true;
             }
             if(commit2.contains_name(filename)&&!nowcommit.contains_name(filename) &&!(commit2.getBlobId(filename)).equals(crosscommit.getBlobId(filename))){
-                conflict_merge(filename, null, commit2.getBlobId(filename));
+                conflict_merge(filename, null, commit2.getBlobId(filename));//8
                 flag_conflict = true;
             }
             if (nowcommit.contains_name(filename) && nowcommit.getBlobId(filename).equals(crosscommit.getBlobId(filename)) && !commit2.contains_name(filename)) {
-                rm(filename);
+                rm(filename);//6
             }
         }
         for (String filename : commit2.getnametoblobs().keySet()) {
-            if (!nowcommit.contains_name(filename) && !crosscommit.contains_name(filename)) {
+            if (!nowcommit.contains_name(filename) && !crosscommit.contains_name(filename)) {//5
                 checkout2(commit2.getId(), filename);
                 add(filename);
             }
             if(nowcommit.contains_name(filename) && !(nowcommit.getBlobId(filename).equals(commit2.getBlobId(filename)))&& !crosscommit.contains_name(filename)){
-                conflict_merge(filename, null, commit2.getBlobId(filename));
+                conflict_merge(filename, null, commit2.getBlobId(filename));//8
                 flag_conflict = true;
             }
         }
@@ -570,15 +577,11 @@ public class Repository {
         String content1 = "";
         String content2 = "";
         if(!(id1==null) &&!(id2==null)){
-            Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
-            Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
             content1 = readContentsAsString(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)));
              content2 = readContentsAsString(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)));
         } else if (id1==null){
-            Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
              content2 = readContentsAsString(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)));
         }else {
-            Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
              content1 = readContentsAsString(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)));
         }
         String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>\n";
