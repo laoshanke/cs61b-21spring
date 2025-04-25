@@ -548,27 +548,46 @@ public class Repository {
         return nowcommit.contains_name(fileName);
     }
 
-    Commit find_cross_commit(Commit commit1, Commit commit2,HashSet<String> set1,HashSet<String>set2) {//找到两个commit的交叉点
+    Commit find_cross_commit(Commit commit1, Commit commit2, HashSet<String> set1, HashSet<String> set2) {
+        // 将当前提交的 ID 添加到各自的集合中
         set1.add(commit1.getId());
         set2.add(commit2.getId());
-        if(!commit1.getparent().isEmpty()){
+
+        // 检查 commit1 的所有父提交
+        if (!commit1.getparent().isEmpty()) {
             for (String id : commit1.getparent()) {
                 if (set2.contains(id)) {
-                    return commit1;
-                } else {
-                    return find_cross_commit(get_branch_point_commit(id), commit2, set1, set2);
+                    // 如果 set2 包含当前父提交的 ID，说明找到了交叉点
+                    return get_branch_point_commit(id);
+                }
+            }
+            // 递归检查 commit1 的所有父提交
+            for (String id : commit1.getparent()) {
+                Commit result = find_cross_commit(get_branch_point_commit(id), commit2, set1, set2);
+                if (result != null) {
+                    return result;
                 }
             }
         }
-        if(!commit2.getparent().isEmpty()){
+
+        // 检查 commit2 的所有父提交
+        if (!commit2.getparent().isEmpty()) {
             for (String id : commit2.getparent()) {
                 if (set1.contains(id)) {
-                    return commit2;
-                } else {
-                    return find_cross_commit(commit1, get_branch_point_commit(id), set1, set2);
+                    // 如果 set1 包含当前父提交的 ID，说明找到了交叉点
+                    return get_branch_point_commit(id);
+                }
+            }
+            // 递归检查 commit2 的所有父提交
+            for (String id : commit2.getparent()) {
+                Commit result = find_cross_commit(commit1, get_branch_point_commit(id), set1, set2);
+                if (result != null) {
+                    return result;
                 }
             }
         }
+
+        // 未找到交叉点，返回 null
         return new Commit();
     }
 
