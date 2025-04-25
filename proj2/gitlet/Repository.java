@@ -327,6 +327,10 @@ public class Repository {
     void checkout_commit(String id) {
         List<String> list = plainFilenamesIn(CWD);
         Commit nowcommit = get_branch_point_commit(get_head_point_branch());
+        if( !join(COMMIT_DIR, id.substring(0, 2), id.substring(2, 40)).exists()){
+            System.out.println("No commit with that id exists.");
+            System.exit(0);
+        }
         Commit commit = readObject(join(COMMIT_DIR, id.substring(0, 2), id.substring(2, 40)), Commit.class);
         for (String name2 : list) {
             if (nowcommit.contains_name(name2) && !commit.contains_name(name2)) {
@@ -345,8 +349,6 @@ public class Repository {
     }
 
     void merge(String name) {//合并分支name
-        Commit nowcommit = get_branch_point_commit(get_head_point_branch());
-        Commit commit2 = get_branch_point_commit(name);
         Addstage addstage = readObject(STAGING, Addstage.class);
         Remove remove = readObject(STAGING_REMOVE, Remove.class);
         boolean flag_conflict = false;
@@ -362,6 +364,8 @@ public class Repository {
             System.out.println("Cannot merge a branch with itself.");
             System.exit(0);
         }
+        Commit nowcommit = get_branch_point_commit(get_head_point_branch());
+        Commit commit2 = get_branch_point_commit(name);
         if (commit2.getnametoblobs().equals(nowcommit.getnametoblobs())) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
