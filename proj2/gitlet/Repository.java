@@ -569,6 +569,8 @@ public class Repository {
                     }
                 }
             }
+            commit1 = readObject(join(COMMIT_DIR, commit1.getparent1().substring(0, 2), commit1.getparent1().substring(2, 40)), Commit.class);
+            commit2 = readObject(join(COMMIT_DIR, commit2.getparent1().substring(0, 2), commit2.getparent1().substring(2, 40)), Commit.class);
         }
         return init_commit;
     }
