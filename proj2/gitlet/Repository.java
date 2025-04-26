@@ -600,15 +600,19 @@ public class Repository {
         String content1 = "";
         String content2 = "";
         if(!(id1==null) &&!(id2==null)){
-            content1 = readContentsAsString(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)));
-             content2 = readContentsAsString(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)));
+            Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
+            Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
+            content1 = blob1.getContent().toString();
+            content2 = blob2.getContent().toString();
         } else if (id1==null){
-             content2 = readContentsAsString(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)));
+            Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
+            content2 = blob2.getContent().toString();
         }else {
-             content1 = readContentsAsString(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)));
+             Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
+             content1 = blob1.getContent().toString();
         }
         String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>";
-        System.out.println( content);
+
         writeContents(join(CWD, fileName), content);
     }
 

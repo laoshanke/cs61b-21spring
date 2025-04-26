@@ -15,9 +15,6 @@ public class Blob implements Serializable {
         name = file.getName();
         id = getId();
     }
-    String getName() {
-        return name;
-    }
     byte[] getContent() {
         return content;
     }
