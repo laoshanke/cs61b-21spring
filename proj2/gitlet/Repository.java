@@ -6,6 +6,7 @@ import java.util.*;
 
 import static gitlet.Utils.*;
 
+
 // TODO: any imports you need here
 
 /**
@@ -607,6 +608,7 @@ public class Repository {
              content1 = readContentsAsString(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)));
         }
         String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>";
+        System.out.println( content);
         writeContents(join(CWD, fileName), content);
     }
 

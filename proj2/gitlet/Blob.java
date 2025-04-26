@@ -36,6 +36,6 @@ public class Blob implements Serializable {
         stage.save();
     }
     String getId(){
-        return Utils.sha1( content);
+        return Utils.sha1( "blob" + " " + content.length + "\0" + content);
     }
 }
