@@ -1,3 +1,4 @@
+
 package gitlet;
 
 import java.io.File;
@@ -5,7 +6,6 @@ import java.io.IOException;
 import java.util.*;
 
 import static gitlet.Utils.*;
-
 
 // TODO: any imports you need here
 
@@ -551,49 +551,49 @@ public class Repository {
 
     Commit find_cross_commit(Commit commit1, Commit commit2) {
         // 将当前提交的 ID 添加到各自的集合中
-       Queue<Commit> queue1 = new LinkedList<>();
-       Queue<Commit> queue2 = new LinkedList<>();
-       Set<String> visited1 = new HashSet<>();
-       Set<String> visited2 = new HashSet<>();
-       queue1.offer(commit1);
-       queue2.offer(commit2);
-       visited1.add(commit1.getId());
-       visited2.add(commit2.getId());
-       while (!queue1.isEmpty() && !queue2.isEmpty()) {
-           int size1 = queue1.size();
-           for (int i = 0; i < size1; i++) {
-               Commit commit = queue1.poll();
-               if(visited2.contains(commit.getId())){
-                   return commit;
-               }else {
-                       visited1.add(commit.getId());
-               }
-               if(!commit.getparent().isEmpty()){
-                   for (String parent : commit.getparent()) {
-                       if (!visited1.contains(parent)){
-                           queue1.offer(readObject(join(COMMIT_DIR, parent.substring(0, 2), parent.substring(2, 40)), Commit.class));
-                       }
-                   }
-               }
-           }
-           int size2 = queue2.size();
-           for (int i = 0; i < size2; i++) {
-               Commit commit = queue2.poll();
-               if(visited1.contains(commit.getId())){
-                   return commit;
-               }else {
-                   visited2.add(commit.getId());
-               }
-               if(!commit.getparent().isEmpty()){
-                   for (String parent : commit.getparent()) {
-                       if (!visited2.contains(parent)){
-                           queue2.offer(readObject(join(COMMIT_DIR, parent.substring(0, 2), parent.substring(2, 40)), Commit.class));
-                       }
-                   }
-               }
-           }
-       }
-       return new Commit();
+        Queue<Commit> queue1 = new LinkedList<>();
+        Queue<Commit> queue2 = new LinkedList<>();
+        Set<String> visited1 = new HashSet<>();
+        Set<String> visited2 = new HashSet<>();
+        queue1.offer(commit1);
+        queue2.offer(commit2);
+        visited1.add(commit1.getId());
+        visited2.add(commit2.getId());
+        while (!queue1.isEmpty() && !queue2.isEmpty()) {
+            int size1 = queue1.size();
+            for (int i = 0; i < size1; i++) {
+                Commit commit = queue1.poll();
+                if(visited2.contains(commit.getId())){
+                    return commit;
+                }else {
+                    visited1.add(commit.getId());
+                }
+                if(!commit.getparent().isEmpty()){
+                    for (String parent : commit.getparent()) {
+                        if (!visited1.contains(parent)){
+                            queue1.offer(readObject(join(COMMIT_DIR, parent.substring(0, 2), parent.substring(2, 40)), Commit.class));
+                        }
+                    }
+                }
+            }
+            int size2 = queue2.size();
+            for (int i = 0; i < size2; i++) {
+                Commit commit = queue2.poll();
+                if(visited1.contains(commit.getId())){
+                    return commit;
+                }else {
+                    visited2.add(commit.getId());
+                }
+                if(!commit.getparent().isEmpty()){
+                    for (String parent : commit.getparent()) {
+                        if (!visited2.contains(parent)){
+                            queue2.offer(readObject(join(COMMIT_DIR, parent.substring(0, 2), parent.substring(2, 40)), Commit.class));
+                        }
+                    }
+                }
+            }
+        }
+        return new Commit();
     }
 
     void conflict_merge(String fileName, String id1, String id2) {//处理冲突
@@ -601,18 +601,17 @@ public class Repository {
         String content2 = "";
         if(!(id1==null) &&!(id2==null)){
             Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
+            content1 = Arrays.toString(blob1.getContent());
             Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
-            content1 = blob1.getContent().toString();
-            content2 = blob2.getContent().toString();
+            content2 = Arrays.toString(blob2.getContent());
         } else if (id1==null){
             Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
-            content2 = blob2.getContent().toString();
+            content2 = Arrays.toString(blob2.getContent());
         }else {
-             Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
-             content1 = blob1.getContent().toString();
+            Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
+            content1 = Arrays.toString(blob1.getContent());
         }
         String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>";
-
         writeContents(join(CWD, fileName), content);
     }
 
