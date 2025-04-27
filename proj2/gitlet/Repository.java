@@ -593,6 +593,7 @@ public class Repository {
     }
 
     void conflict_merge(String fileName, String id1, String id2) {//处理冲突
+        Addstage addstage = readObject(STAGING, Addstage.class);
         String content1 = "";
         String content2 = "";
         if(!(id1==null) &&!(id2==null)){
@@ -609,6 +610,9 @@ public class Repository {
         }
         String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>\n";
         writeContents(join(CWD, fileName), content);
+        Blob blob = new Blob(join(CWD, fileName));
+        addstage.add(fileName, blob.getId());
+        addstage.save();
     }
 
 
