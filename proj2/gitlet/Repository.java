@@ -607,8 +607,7 @@ public class Repository {
             Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
             content1 = new String(blob1.getContent(), StandardCharsets.UTF_8);
         }
-        String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>";
-        System.out.println(content);
+        String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>\n";
         writeContents(join(CWD, fileName), content);
     }
 
