@@ -593,7 +593,7 @@ public class Repository {
                 }
             }
         }
-        return new Commit();
+        return null;
     }
 
     void conflict_merge(String fileName, String id1, String id2) {//处理冲突
@@ -612,6 +612,7 @@ public class Repository {
             content1 = Arrays.toString(blob1.getContent());
         }
         String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>";
+        System.out.println("content");
         writeContents(join(CWD, fileName), content);
     }
 
