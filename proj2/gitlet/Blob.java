@@ -8,14 +8,14 @@ import static gitlet.Utils.join;
 
 public class Blob implements Serializable {
    private String name;
-    private String content;
+    private byte[] content;
     private String id;
     public Blob(File file) {
-        content = Utils.readContentsAsString(file);
+        content = Utils.readContents(file);
         name = file.getName();
         id = getId();
     }
-    String getContent() {
+    byte[] getContent() {
         return content;
     }
     void saveObject() {//把一个blob对象保存到对象文件夹中

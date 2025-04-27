@@ -3,6 +3,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static gitlet.Utils.*;
@@ -596,15 +597,15 @@ public class Repository {
         String content2 = "";
         if(!(id1==null) &&!(id2==null)){
             Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
-            content1 = blob1.getContent();
+            content1 = new String(blob1.getContent(), StandardCharsets.UTF_8);
             Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
-            content2 = blob1.getContent();
+            content2 = new String(blob2.getContent(), StandardCharsets.UTF_8);
         } else if (id1==null){
             Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
-            content2 = blob2.getContent();
+            content2 = new String(blob2.getContent(), StandardCharsets.UTF_8);
         }else {
             Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
-            content1 = blob1.getContent();
+            content1 = new String(blob1.getContent(), StandardCharsets.UTF_8);
         }
         String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>";
         System.out.println(content);
