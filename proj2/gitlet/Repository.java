@@ -371,10 +371,6 @@ public class Repository {
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
-        if (commit2.getId().equals(nowcommit.getId())) {
-            System.out.println("Given branch is an ancestor of the current branch.");
-            System.exit(0);
-        }
         Commit crosscommit = find_cross_commit(nowcommit, commit2);
         if (crosscommit.getId().equals(commit2.getId())) {
             System.out.println("Given branch is an ancestor of the current branch.");
@@ -557,8 +553,6 @@ public class Repository {
         Set<String> visited2 = new HashSet<>();
         queue1.offer(commit1);
         queue2.offer(commit2);
-        visited1.add(commit1.getId());
-        visited2.add(commit2.getId());
         while (!queue1.isEmpty() && !queue2.isEmpty()) {
             int size1 = queue1.size();
             for (int i = 0; i < size1; i++) {
@@ -612,7 +606,7 @@ public class Repository {
             content1 = Arrays.toString(blob1.getContent());
         }
         String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>";
-        System.out.println("content");
+
         writeContents(join(CWD, fileName), content);
     }
 
