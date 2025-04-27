@@ -372,6 +372,12 @@ public class Repository {
             System.exit(0);
         }
         Commit crosscommit = find_cross_commit(nowcommit, commit2);
+        if(crosscommit == null) {
+            System.out.println("null error");
+            System.exit(0);
+        }else{
+           System.out.println(crosscommit.getMessage());
+        }
         if (crosscommit.getId().equals(commit2.getId())) {
             System.out.println("Given branch is an ancestor of the current branch.");
             System.exit(0);
@@ -606,7 +612,7 @@ public class Repository {
             content1 = Arrays.toString(blob1.getContent());
         }
         String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>";
-
+        System.out.println("content");
         writeContents(join(CWD, fileName), content);
     }
 
