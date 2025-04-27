@@ -554,7 +554,7 @@ public class Repository {
         Set<String> visited2 = new HashSet<>();
         queue1.offer(commit1);
         queue2.offer(commit2);
-        while (!queue1.isEmpty() && !queue2.isEmpty()) {
+        while (!queue1.isEmpty() || !queue2.isEmpty()) {
             int size1 = queue1.size();
             for (int i = 0; i < size1; i++) {
                 Commit commit = queue1.poll();
@@ -596,15 +596,15 @@ public class Repository {
         String content2 = "";
         if(!(id1==null) &&!(id2==null)){
             Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
-            content1 = Arrays.toString(blob1.getContent());
+            content1 = blob1.getContent();
             Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
-            content2 = Arrays.toString(blob2.getContent());
+            content2 = blob1.getContent();
         } else if (id1==null){
             Blob blob2 = readObject(join(OBJECT_DIR, id2.substring(0, 2), id2.substring(2, 40)), Blob.class);
-            content2 = Arrays.toString(blob2.getContent());
+            content2 = blob2.getContent();
         }else {
             Blob blob1 = readObject(join(OBJECT_DIR, id1.substring(0, 2), id1.substring(2, 40)), Blob.class);
-            content1 = Arrays.toString(blob1.getContent());
+            content1 = blob1.getContent();
         }
         String content = "<<<<<<< HEAD\n" + content1 + "=======\n" + content2 + ">>>>>>>";
         System.out.println(content);
